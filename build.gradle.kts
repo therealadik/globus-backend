@@ -25,7 +25,7 @@ dependencies {
 	/**
 	 * Swagger / OpenAPI
 	 */
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
 	/**
 	 * Database
@@ -42,8 +42,8 @@ dependencies {
 	implementation("ch.qos.logback:logback-classic")
 	implementation("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
-	implementation("org.mapstruct:mapstruct")
-	annotationProcessor("org.mapstruct:mapstruct-processor")
+	implementation("org.mapstruct:mapstruct:1.6.3")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
 	/**
 	 * Tests

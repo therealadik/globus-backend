@@ -5,11 +5,6 @@ spring:
     username: ${DATASOURCE_USERNAME:user}
     password: ${DATASOURCE_PASSWORD:password}
 
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

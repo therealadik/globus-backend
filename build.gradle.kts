@@ -1,5 +1,3 @@
-import kotlin.math.min
-
 plugins {
 	java
 	id("org.springframework.boot") version "3.4.4"

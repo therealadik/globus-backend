@@ -1,7 +1,10 @@
+import kotlin.math.min
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.4.4"
 	id("io.spring.dependency-management") version "1.1.7"
+	jacoco
 }
 
 group = "com.example"
@@ -68,4 +71,29 @@ val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true 
 
 tasks.bootJar {
 	archiveFileName.set("service.jar")
+}
+
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+	reports {
+		html.required.set(true)
+	}
+}
+
+tasks.jacocoTestCoverageVerification {
+	dependsOn(tasks.jacocoTestReport)
+	violationRules {
+		rule {
+			element = "PACKAGE"
+			includes = listOf("com.example.globus.service")
+
+			limit {
+				minimum = BigDecimal.valueOf(0.7)
+			}
+		}
+	}
+}
+
+tasks.check {
+	dependsOn(tasks.jacocoTestCoverageVerification)
 }

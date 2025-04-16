@@ -68,6 +68,10 @@ dependencies {
 	testImplementation("org.testcontainers:postgresql")
 }
 
+tasks.test {
+	useJUnitPlatform()
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
@@ -82,6 +86,7 @@ tasks.jacocoTestReport {
 	dependsOn(tasks.test)
 	reports {
 		html.required.set(true)
+		xml.required.set(true)
 	}
 }
 

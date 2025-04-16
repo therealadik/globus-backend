@@ -1,4 +1,4 @@
-package com.example.globus.model;
+package com.example.globus.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,11 +15,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "categories")
+@Table(name = "banks")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Bank {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +27,4 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
-
 }

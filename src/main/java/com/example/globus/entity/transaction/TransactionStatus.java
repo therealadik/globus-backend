@@ -1,4 +1,4 @@
-package com.example.globus.model.transaction;
+package com.example.globus.entity.transaction;
 
 public enum TransactionStatus {
     NEW,

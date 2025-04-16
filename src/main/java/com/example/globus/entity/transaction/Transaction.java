@@ -1,8 +1,8 @@
-package com.example.globus.model.transaction;
+package com.example.globus.entity.transaction;
 
-import com.example.globus.model.Bank;
-import com.example.globus.model.Category;
-import com.example.globus.model.User;
+import com.example.globus.entity.Bank;
+import com.example.globus.entity.Category;
+import com.example.globus.entity.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

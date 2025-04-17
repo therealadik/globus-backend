@@ -1,4 +1,4 @@
-package com.example.globus.model;
+package com.example.globus.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,19 +14,17 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "banks")
 @Builder
 @NoArgsConstructor
-public class User {
+@AllArgsConstructor
+public class Bank {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    @Column(nullable = false)
-    private String password;
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 }

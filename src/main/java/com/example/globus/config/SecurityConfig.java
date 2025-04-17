@@ -27,7 +27,16 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/login/**", "/register/**", "/").permitAll()
+                        .requestMatchers(
+                                "/login/**",
+                                "/register/**",
+                                "/"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .userDetailsService(userService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

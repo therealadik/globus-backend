@@ -96,6 +96,7 @@ tasks.jacocoTestCoverageVerification {
             element = "PACKAGE"
             includes = listOf(
                 "com.example.globus.service.*",
+                "com.example.globus.service",
                 "com.example.globus.security"
             )
 

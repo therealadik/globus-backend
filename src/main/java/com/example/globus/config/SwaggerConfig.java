@@ -14,6 +14,9 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig extends WebMvcConfigurationSupport {
@@ -25,10 +28,13 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.example.globus.controller"))
-                .paths(PathSelectors.any()) // Включаем все эндпоинты
+                .paths(PathSelectors.any())
                 .build()
                 .apiInfo(metaData())
-                .enable(enableSwagger); // Возможность отключения Swagger через конфиг
+                .enable(enableSwagger)
+                .enableUrlTemplating(true)
+                .protocols((java.util.Set<String>) List.of("https"))
+                .host("your-api-host.com");
     }
 
     private ApiInfo metaData() {
@@ -36,7 +42,10 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .title("Financial Monitoring and Reporting API")
                 .description("API для финансового мониторинга и отчетности")
                 .version("1.0.0")
-                .contact(new Contact(/*тут наши данные для апи адрес, имя и т.д.*/
+                .contact(new Contact(
+                        "Your Name",
+                        "https://your-company.com",
+                        "support@your-company.com"
                 ))
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")

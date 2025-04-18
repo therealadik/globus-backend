@@ -14,8 +14,8 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @EnableSwagger2
@@ -33,8 +33,15 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .apiInfo(metaData())
                 .enable(enableSwagger)
                 .enableUrlTemplating(true)
-                .protocols((java.util.Set<String>) List.of("https"))
+                .protocols(getSupportedProtocols())
                 .host("your-api-host.com");
+    }
+
+    private Set<String> getSupportedProtocols() {
+        Set<String> protocols = new HashSet<>();
+        protocols.add("https");
+        protocols.add("http");
+        return protocols;
     }
 
     private ApiInfo metaData() {
@@ -43,9 +50,9 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .description("API для финансового мониторинга и отчетности")
                 .version("1.0.0")
                 .contact(new Contact(
-                        "Your Name",
-                        "https://your-company.com",
-                        "support@your-company.com"
+                        "Our company",
+                        "https://our-company.com",
+                        "support@our-company.com"
                 ))
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")

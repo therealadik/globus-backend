@@ -1,6 +1,6 @@
 package com.example.globus.mapstruct;
 
-import com.example.globus.dto.transaction.NewRequestDto;
+import com.example.globus.dto.transaction.NewTransactionRequestDto;
 import com.example.globus.entity.Bank;
 import com.example.globus.entity.Category;
 import com.example.globus.entity.transaction.PersonType;
@@ -21,7 +21,7 @@ public interface TransactionMapper {
     @Mapping(source = "newRequestDto.personType", target = "personType")
     @Mapping(target = "createdBy", expression = "java(user)")
     @Mapping(target = "updatedBy", expression = "java(user)")
-    Transaction toEntity(NewRequestDto newRequestDto, User user, @Context BankService bankService, @Context CategoryService categoryService);
+    Transaction toEntity(NewTransactionRequestDto newRequestDto, User user, @Context BankService bankService, @Context CategoryService categoryService);
 
     default Bank mapBank(String bankName, @Context BankService bankService) {
         Optional<Bank> bankOptional = bankService.findBankByName(bankName);

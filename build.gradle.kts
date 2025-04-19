@@ -22,7 +22,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE")
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
     /**
      * JWT
@@ -34,7 +35,7 @@ dependencies {
     /**
      * Swagger / OpenAPI
      */
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
     /**
      * Database
@@ -67,16 +68,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
-
-    implementation ("org.springdoc:springdoc-openapi-ui:1.6.12")
-    implementation ("org.springdoc:springdoc-openapi-webmvc-core:1.6.12")
-
-    implementation ("io.swagger.core.v3:swagger-annotations:2.2.1")
-    implementation ("io.swagger.core.v3:swagger-models:2.2.1")
-    implementation ("org.springframework.boot:spring-boot-starter-web")
-    implementation ("org.springframework.plugin:spring-plugin-core")
-
-    testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.test {

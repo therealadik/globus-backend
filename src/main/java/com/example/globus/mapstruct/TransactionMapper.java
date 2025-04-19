@@ -32,9 +32,6 @@ public interface TransactionMapper {
     }
 
     default PersonType mapPersonType(String personType) {
-        if (personType == null) {
-            return null;
-        }
         try {
             return PersonType.valueOf(personType.toUpperCase());
         } catch (IllegalArgumentException e) {

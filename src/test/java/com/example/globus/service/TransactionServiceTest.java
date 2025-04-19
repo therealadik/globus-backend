@@ -8,24 +8,28 @@ import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionType;
 import com.example.globus.entity.user.User;
 import com.example.globus.mapstruct.TransactionMapper;
+import com.example.globus.mapstruct.TransactionMapperImpl;
 import com.example.globus.repository.TransactionRepository;
 import com.example.globus.service.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
+import static javax.management.Query.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
-    @Mock
-    private TransactionMapper transactionMapper;
+    @Spy
+    private TransactionMapper transactionMapper = new TransactionMapperImpl();
 
     @Mock
     private TransactionRepository transactionRepository;
@@ -69,10 +73,7 @@ public class TransactionServiceTest {
         user.setId(1L);
 
         when(userService.getUser()).thenReturn(user);
-        when(transactionMapper.toEntity(
-                newTransactionRequestDto, user, bankService, categoryService
-        )).thenReturn(transaction);
-        when(transactionRepository.save(transaction)).thenReturn(transaction);
+        when(transactionRepository.save(any())).thenReturn(transaction);
 
         boolean result = transactionService.create(newTransactionRequestDto);
         assertTrue(result);
@@ -105,10 +106,7 @@ public class TransactionServiceTest {
         user.setId(1L);
 
         when(userService.getUser()).thenReturn(user);
-        when(transactionMapper.toEntity(
-                newTransactionRequestDto, user, bankService, categoryService
-        )).thenReturn(transaction);
-        when(transactionRepository.save(transaction)).thenThrow(new IllegalArgumentException("IllegalArgumentException"));
+        when(transactionRepository.save(any())).thenThrow(new IllegalArgumentException("IllegalArgumentException"));
 
         RuntimeException ex = assertThrows(IllegalArgumentException.class, () -> transactionService.create(newTransactionRequestDto));
         assertTrue(ex.getMessage().contains("IllegalArgumentException"));

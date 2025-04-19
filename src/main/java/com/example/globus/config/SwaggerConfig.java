@@ -1,68 +1,63 @@
 package com.example.globus.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.boot.starter.operation.WebFluxOperationScanner;
+import springfox.boot.starter.operation.WebMvcOperationScanner;
+import springfox.documentation.swagger.configuration.SwaggerWebFluxConfiguration;
+import springfox.documentation.swagger.configuration.SwaggerWebMvcConfiguration;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Value("${swagger.enable:true}")
     private boolean enableSwagger;
 
     @Bean
-    public Docket productApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.example.globus.controller"))
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(metaData())
-                .enable(enableSwagger)
-                .enableUrlTemplating(true)
-                .protocols(getSupportedProtocols())
-                .host("your-api-host.com");
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(info())
+                .servers(Arrays.asList(new Server().url("https://your-api-host.com")))
+                .components(new Components());
     }
 
-    private Set<String> getSupportedProtocols() {
-        Set<String> protocols = new HashSet<>();
-        protocols.add("https");
-        protocols.add("http");
-        return protocols;
-    }
-
-    private ApiInfo metaData() {
-        return new ApiInfoBuilder()
+    private Info info() {
+        return new Info()
                 .title("Financial Monitoring and Reporting API")
-                .description("API для финансового мониторинга и отчетности")
+                .description("API for financial monitoring and reporting")
                 .version("1.0.0")
-                .contact(new Contact(
-                        "Our company",
-                        "https://our-company.com",
-                        "support@our-company.com"
-                ))
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
-                .build();
+                .contact(new Contact()
+                        .name("Our company")
+                        .url("https://our-company.com")
+                        .email("support@our-company.com"))
+                .license(license());
+    }
+
+    @Bean
+    public WebMvcOperationScanner operationScanner() {
+        return new WebMvcOperationScanner();
+    }
+
+    @Bean
+    public SwaggerWebMvcConfiguration swaggerWebMvcConfiguration() {
+        return new SwaggerWebMvcConfiguration();
     }
 
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("swagger-ui/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/")
+                .resourceChain(false);
 
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");

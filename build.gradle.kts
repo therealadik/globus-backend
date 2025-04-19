@@ -67,6 +67,15 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
 
+    implementation ("org.springdoc:springdoc-openapi-ui:1.6.12")
+    implementation ("org.springdoc:springdoc-openapi-webmvc-core:1.6.12")
+
+    implementation ("io.swagger.core.v3:swagger-annotations:2.2.1")
+    implementation ("io.swagger.core.v3:swagger-models:2.2.1")
+    implementation ("org.springframework.boot:spring-boot-starter-web")
+    implementation ("org.springframework.plugin:spring-plugin-core")
+
+    testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.test {

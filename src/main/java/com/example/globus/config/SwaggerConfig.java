@@ -4,8 +4,9 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
-import org.gradle.internal.impldep.it.unimi.dsi.fastutil.Arrays;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +35,11 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                         .name("Our company")
                         .url("https://our-company.com")
                         .email("support@our-company.com"))
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0");
+                .license(new License() // Здесь создаем объект License
+                        .name("Apache 2.0")
+                        .url("http://www.apache.org/licenses/LICENSE-2.0"));
     }
+
 
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {

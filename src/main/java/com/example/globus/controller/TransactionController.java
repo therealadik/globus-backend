@@ -1,7 +1,7 @@
 package com.example.globus.controller;
 
 import com.example.globus.dto.transaction.NewTransactionRequestDto;
-import com.example.globus.dto.transaction.ResponseDto;
+import com.example.globus.dto.transaction.TransactionResponseDto;
 import com.example.globus.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping()
-    public ResponseDto create(@Valid @RequestBody NewTransactionRequestDto request) {
-        return new ResponseDto(transactionService.create(request));
+    public TransactionResponseDto create(@Valid @RequestBody NewTransactionRequestDto request) {
+        return new TransactionResponseDto(transactionService.create(request));
     }
 }

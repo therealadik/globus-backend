@@ -24,20 +24,11 @@ public interface TransactionMapper {
     Transaction toEntity(NewTransactionRequestDto newRequestDto, User user, @Context BankService bankService, @Context CategoryService categoryService);
 
     default Bank mapBank(String bankName, @Context BankService bankService) {
-        Optional<Bank> bankOptional = bankService.findBankByName(bankName);
-        if (bankOptional.isEmpty()) {
-            throw new IllegalArgumentException("Не найден банк: " + bankName);
-        }
-        return bankOptional.get();
+        return bankService.findByName(bankName);
     }
 
     default Category mapCategory(String categoryName, @Context CategoryService categoryService) {
-        Optional<Category> categoryOptional = categoryService.findBankByName(categoryName);
-        if (categoryOptional.isEmpty()) {
-            throw new IllegalArgumentException("Не найдена категория: " + categoryName);
-        }
-
-        return categoryOptional.get();
+        return categoryService.findByName(categoryName);
     }
 
     default PersonType mapPersonType(String personType) {

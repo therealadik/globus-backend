@@ -73,7 +73,7 @@ public class Transaction {
     private Category category;
 
     @Pattern(
-            regexp = "^(\\\\+7|8)\\\\d{10}$\"",
+            regexp = "^(\\+7|8)\\d{10}$",
             message = "Телефон должен начинаться с +7 или 8 и содержать 10 цифр после"
 
     )

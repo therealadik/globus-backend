@@ -8,4 +8,5 @@ public interface UserService extends UserDetailsService {
     boolean existsByUsername(String username);
     User findByUsername(String username);
     User createUser(RegistrationRequestDto request);
+    User getUser();
 }

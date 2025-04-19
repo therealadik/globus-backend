@@ -3,6 +3,7 @@ package com.example.globus.service;
 
 import com.example.globus.entity.Bank;
 import com.example.globus.repository.BankRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ public class BankService {
         this.bankRepository = bankRepository;
     }
 
-    public Optional<Bank> findBankByName(String name) {
-        return bankRepository.findByName(name);
+    public Bank findByName(String name) {
+        return bankRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Банк с именем " + name + " не найден"));
     }
 }

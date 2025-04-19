@@ -2,9 +2,8 @@ package com.example.globus.service;
 
 import com.example.globus.entity.Category;
 import com.example.globus.repository.CategoryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -14,7 +13,7 @@ public class CategoryService {
         this.repository = categoryRepository;
     }
 
-    public Optional<Category> findBankByName(String name) {
-        return repository.findByName(name);
+    public Category findByName(String name) {
+        return repository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Категория с именем " + name + " не найдена"));
     }
 }

@@ -5,18 +5,12 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import org.gradle.internal.impldep.it.unimi.dsi.fastutil.Arrays;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import springfox.boot.starter.operation.WebFluxOperationScanner;
-import springfox.boot.starter.operation.WebMvcOperationScanner;
-import springfox.documentation.swagger.configuration.SwaggerWebFluxConfiguration;
-import springfox.documentation.swagger.configuration.SwaggerWebMvcConfiguration;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class SwaggerConfig extends WebMvcConfigurationSupport {
@@ -40,17 +34,8 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                         .name("Our company")
                         .url("https://our-company.com")
                         .email("support@our-company.com"))
-                .license(license());
-    }
-
-    @Bean
-    public WebMvcOperationScanner operationScanner() {
-        return new WebMvcOperationScanner();
-    }
-
-    @Bean
-    public SwaggerWebMvcConfiguration swaggerWebMvcConfiguration() {
-        return new SwaggerWebMvcConfiguration();
+                .license("Apache 2.0")
+                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0");
     }
 
     @Override

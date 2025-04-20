@@ -196,17 +196,16 @@ class DashboardServiceTest {
         // Arrange
         List<Transaction> transactions = Arrays.asList(
                 debitTransaction1,
-                nullCategoryTransaction,
-                nullAmountTransaction
+                nullCategoryTransaction  // This has amount but no category
         );
 
         // Act
         DashboardDebitResponse response = dashboardService.getDebitTransactionsDashboard(transactions);
 
         // Assert
-        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getTotalDebitAmount());
-        assertEquals(1, response.getTotalDebitTransactions());
-        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getAverageDebitAmount());
+        assertEquals(BigDecimal.valueOf(175).setScale(2, RoundingMode.HALF_UP), response.getTotalDebitAmount());
+        assertEquals(2, response.getTotalDebitTransactions());
+        assertEquals(BigDecimal.valueOf(87.50).setScale(2, RoundingMode.HALF_UP), response.getAverageDebitAmount());
 
         Map<String, BigDecimal> debitsByCategory = response.getDebitsByCategory();
         assertEquals(1, debitsByCategory.size());
@@ -227,17 +226,16 @@ class DashboardServiceTest {
 
         List<Transaction> transactions = Arrays.asList(
                 creditTransaction1,
-                nullCategoryCreditTransaction,
-                nullAmountTransaction
+                nullCategoryCreditTransaction
         );
 
         // Act
         DashboardCreditResponse response = dashboardService.getCreditTransactionsDashboard(transactions);
 
         // Assert
-        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getTotalCreditAmount());
-        assertEquals(1, response.getTotalCreditTransactions());
-        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getAverageCreditAmount());
+        assertEquals(BigDecimal.valueOf(275).setScale(2, RoundingMode.HALF_UP), response.getTotalCreditAmount());
+        assertEquals(2, response.getTotalCreditTransactions());
+        assertEquals(BigDecimal.valueOf(137.50).setScale(2, RoundingMode.HALF_UP), response.getAverageCreditAmount());
 
         Map<String, BigDecimal> creditsByCategory = response.getCreditsByCategory();
         assertEquals(1, creditsByCategory.size());

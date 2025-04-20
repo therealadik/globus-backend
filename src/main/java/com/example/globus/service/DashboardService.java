@@ -1,6 +1,8 @@
 package com.example.globus.service;
 
+import com.example.globus.entity.Category;
 import com.example.globus.entity.transaction.Transaction;
+import com.example.globus.entity.transaction.TransactionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,7 @@ public class DashboardService {
         List<Transaction> debitTransactions = transactions.stream()
                 .filter(Objects::nonNull)
                 .filter(transaction -> transaction.getAmount() != null)
+                .filter(transaction -> transaction.getStatus() == TransactionStatus.COMPLETED)
                 .filter(transaction -> transaction.getAmount().compareTo(BigDecimal.ZERO) < 0)
                 .collect(Collectors.toList());
 
@@ -38,7 +41,7 @@ public class DashboardService {
         Map<String, BigDecimal> debitsByCategory = debitTransactions.stream()
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
+                        t -> t.getCategory().getName(),
                         Collectors.reducing(BigDecimal.ZERO,
                                 Transaction::getAmount,
                                 BigDecimal::add)))
@@ -51,7 +54,7 @@ public class DashboardService {
         Map<String, Long> transactionCountByCategory = debitTransactions.stream()
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
+                        t -> t.getCategory().getName(),
                         Collectors.counting()));
 
         BigDecimal averageDebitAmount = calculateAverage(totalDebitAmount, debitTransactions.size());
@@ -73,6 +76,7 @@ public class DashboardService {
         List<Transaction> creditTransactions = transactions.stream()
                 .filter(Objects::nonNull)
                 .filter(transaction -> transaction.getAmount() != null)
+                .filter(transaction -> transaction.getStatus() == TransactionStatus.COMPLETED)
                 .filter(transaction -> transaction.getAmount().compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toList());
 
@@ -84,7 +88,7 @@ public class DashboardService {
         Map<String, BigDecimal> creditsByCategory = creditTransactions.stream()
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
+                        t -> t.getCategory().getName(),
                         Collectors.reducing(BigDecimal.ZERO,
                                 Transaction::getAmount,
                                 BigDecimal::add)))
@@ -97,7 +101,7 @@ public class DashboardService {
         Map<String, Long> transactionCountByCategory = creditTransactions.stream()
                 .filter(t -> t.getCategory() != null)
                 .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
+                        t -> t.getCategory().getName(),
                         Collectors.counting()));
 
         BigDecimal averageCreditAmount = calculateAverage(totalCreditAmount, creditTransactions.size());

@@ -30,6 +30,8 @@ class DashboardServiceTest {
     private Transaction debitTransaction2;
     private Transaction creditTransaction1;
     private Transaction creditTransaction2;
+    private Transaction nullCategoryTransaction;
+    private Transaction nullAmountTransaction;
 
     @BeforeEach
     void setUp() {
@@ -60,6 +62,16 @@ class DashboardServiceTest {
         creditTransaction2 = Transaction.builder()
                 .amount(BigDecimal.valueOf(150))
                 .category(category2)
+                .status(TransactionStatus.COMPLETED)
+                .build();
+
+        nullCategoryTransaction = Transaction.builder()
+                .amount(BigDecimal.valueOf(-75))
+                .status(TransactionStatus.COMPLETED)
+                .build();
+
+        nullAmountTransaction = Transaction.builder()
+                .category(category1)
                 .status(TransactionStatus.COMPLETED)
                 .build();
     }
@@ -177,5 +189,100 @@ class DashboardServiceTest {
 
         // No assertions needed as the method is void and processDashboards is empty
         // This test is for coverage purposes
+    }
+
+    @Test
+    void getDebitTransactionsDashboard_WithNullCategoryAndAmount_ShouldHandleGracefully() {
+        // Arrange
+        List<Transaction> transactions = Arrays.asList(
+                debitTransaction1,
+                nullCategoryTransaction,
+                nullAmountTransaction
+        );
+
+        // Act
+        DashboardDebitResponse response = dashboardService.getDebitTransactionsDashboard(transactions);
+
+        // Assert
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getTotalDebitAmount());
+        assertEquals(1, response.getTotalDebitTransactions());
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getAverageDebitAmount());
+
+        Map<String, BigDecimal> debitsByCategory = response.getDebitsByCategory();
+        assertEquals(1, debitsByCategory.size());
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), debitsByCategory.get("Food"));
+
+        Map<String, Long> countByCategory = response.getTransactionCountByCategory();
+        assertEquals(1, countByCategory.size());
+        assertEquals(1L, countByCategory.get("Food"));
+    }
+
+    @Test
+    void getCreditTransactionsDashboard_WithNullCategoryAndAmount_ShouldHandleGracefully() {
+        // Arrange
+        Transaction nullCategoryCreditTransaction = Transaction.builder()
+                .amount(BigDecimal.valueOf(75))
+                .status(TransactionStatus.COMPLETED)
+                .build();
+
+        List<Transaction> transactions = Arrays.asList(
+                creditTransaction1,
+                nullCategoryCreditTransaction,
+                nullAmountTransaction
+        );
+
+        // Act
+        DashboardCreditResponse response = dashboardService.getCreditTransactionsDashboard(transactions);
+
+        // Assert
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getTotalCreditAmount());
+        assertEquals(1, response.getTotalCreditTransactions());
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getAverageCreditAmount());
+
+        Map<String, BigDecimal> creditsByCategory = response.getCreditsByCategory();
+        assertEquals(1, creditsByCategory.size());
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), creditsByCategory.get("Food"));
+
+        Map<String, Long> countByCategory = response.getTransactionCountByCategory();
+        assertEquals(1, countByCategory.size());
+        assertEquals(1L, countByCategory.get("Food"));
+    }
+
+    @Test
+    void getDebitTransactionsDashboard_WithNonCompletedStatus_ShouldExcludeTransactions() {
+        // Arrange
+        Transaction pendingTransaction = Transaction.builder()
+                .amount(BigDecimal.valueOf(-100))
+                .category(category1)
+                .status(TransactionStatus.PENDING)
+                .build();
+
+        List<Transaction> transactions = Arrays.asList(debitTransaction1, pendingTransaction);
+
+        // Act
+        DashboardDebitResponse response = dashboardService.getDebitTransactionsDashboard(transactions);
+
+        // Assert
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getTotalDebitAmount());
+        assertEquals(1, response.getTotalDebitTransactions());
+    }
+
+    @Test
+    void getCreditTransactionsDashboard_WithNonCompletedStatus_ShouldExcludeTransactions() {
+        // Arrange
+        Transaction pendingTransaction = Transaction.builder()
+                .amount(BigDecimal.valueOf(100))
+                .category(category1)
+                .status(TransactionStatus.PENDING)
+                .build();
+
+        List<Transaction> transactions = Arrays.asList(creditTransaction1, pendingTransaction);
+
+        // Act
+        DashboardCreditResponse response = dashboardService.getCreditTransactionsDashboard(transactions);
+
+        // Assert
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getTotalCreditAmount());
+        assertEquals(1, response.getTotalCreditTransactions());
     }
 } 

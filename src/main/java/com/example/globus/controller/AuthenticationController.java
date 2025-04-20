@@ -1,8 +1,8 @@
 package com.example.globus.controller;
 
-import com.example.globus.dto.AuthenticationResponseDto;
-import com.example.globus.dto.LoginRequestDto;
-import com.example.globus.dto.RegistrationRequestDto;
+import com.example.globus.dto.authentication.AuthenticationResponseDto;
+import com.example.globus.dto.authentication.LoginRequestDto;
+import com.example.globus.dto.authentication.RegistrationRequestDto;
 import com.example.globus.service.auth.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

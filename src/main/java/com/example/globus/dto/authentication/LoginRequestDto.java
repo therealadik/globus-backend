@@ -1,4 +1,4 @@
-package com.example.globus.dto;
+package com.example.globus.dto.authentication;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

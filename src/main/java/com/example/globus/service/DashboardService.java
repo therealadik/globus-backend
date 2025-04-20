@@ -39,20 +39,19 @@ public class DashboardService {
                 .setScale(DECIMAL_PLACES, RoundingMode.HALF_UP);
 
         Map<String, BigDecimal> debitsByCategory = debitTransactions.stream()
-                .filter(t -> t.getCategory() != null)
+                .filter(t -> t.getCategory() != null && t.getCategory().getName() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
-                        Collectors.reducing(BigDecimal.ZERO,
+                        Collectors.mapping(
                                 Transaction::getAmount,
-                                BigDecimal::add)))
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))
                 .entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> e.getValue().abs().setScale(DECIMAL_PLACES, RoundingMode.HALF_UP)
-                ));
+                        e -> e.getValue().abs().setScale(DECIMAL_PLACES, RoundingMode.HALF_UP)));
 
         Map<String, Long> transactionCountByCategory = debitTransactions.stream()
-                .filter(t -> t.getCategory() != null)
+                .filter(t -> t.getCategory() != null && t.getCategory().getName() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
                         Collectors.counting()));
@@ -86,20 +85,19 @@ public class DashboardService {
                 .setScale(DECIMAL_PLACES, RoundingMode.HALF_UP);
 
         Map<String, BigDecimal> creditsByCategory = creditTransactions.stream()
-                .filter(t -> t.getCategory() != null)
+                .filter(t -> t.getCategory() != null && t.getCategory().getName() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
-                        Collectors.reducing(BigDecimal.ZERO,
+                        Collectors.mapping(
                                 Transaction::getAmount,
-                                BigDecimal::add)))
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))
                 .entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> e.getValue().setScale(DECIMAL_PLACES, RoundingMode.HALF_UP)
-                ));
+                        e -> e.getValue().setScale(DECIMAL_PLACES, RoundingMode.HALF_UP)));
 
         Map<String, Long> transactionCountByCategory = creditTransactions.stream()
-                .filter(t -> t.getCategory() != null)
+                .filter(t -> t.getCategory() != null && t.getCategory().getName() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
                         Collectors.counting()));

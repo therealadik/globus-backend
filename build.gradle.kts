@@ -23,7 +23,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
-    implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
     /**
      * JWT
@@ -35,7 +34,7 @@ dependencies {
     /**
      * Swagger / OpenAPI
      */
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
     /**
      * Database

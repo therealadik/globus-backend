@@ -1,53 +1,34 @@
 package com.example.globus.config;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.servers.Server;
-import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 @Configuration
-public class SwaggerConfig extends WebMvcConfigurationSupport {
-    @Value("${swagger.enable:true}")
-    private boolean enableSwagger;
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(info())
-                .servers(Arrays.asList(new Server().url("https://your-api-host.com")))
-                .components(new Components());
-    }
-
-    private Info info() {
-        return new Info()
-                .title("Financial Monitoring and Reporting API")
-                .description("API for financial monitoring and reporting")
-                .version("1.0.0")
-                .contact(new Contact()
-                        .name("Our company")
-                        .url("https://our-company.com")
-                        .email("support@our-company.com"))
-                .license(new License() // Здесь создаем объект License
-                        .name("Apache 2.0")
-                        .url("http://www.apache.org/licenses/LICENSE-2.0"));
-    }
-
-
-    @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/")
-                .resourceChain(false);
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Financial Monitoring and Reporting API",
+                description = "API for financial monitoring and reporting",
+                version = "1.0",
+                contact = @Contact(
+                        name = "Globus company",
+                        url = "https://our-company.com",
+                        email = "support@our-company.com"
+                ),
+                license = @License(
+                        name = "MIT License",
+                        url = "https://opensource.org/licenses/MIT"
+                )
+        ),
+        servers = {
+                @Server(
+                        url = "http://localhost:8080",
+                        description = "Local Development Server"
+                )
+        }
+)
+public class SwaggerConfig {
 }

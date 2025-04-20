@@ -1,10 +1,10 @@
 package com.example.globus.service;
 
 import com.example.globus.dto.transaction.NewTransactionRequestDto;
-import com.example.globus.entity.Bank;
-import com.example.globus.entity.Category;
+import com.example.globus.dto.transaction.TransactionResponseDto;
 import com.example.globus.entity.transaction.PersonType;
 import com.example.globus.entity.transaction.Transaction;
+import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
 import com.example.globus.entity.user.User;
 import com.example.globus.mapstruct.TransactionMapper;
@@ -19,15 +19,18 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-import static javax.management.Query.eq;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
+
     @Spy
     private TransactionMapper transactionMapper = new TransactionMapperImpl();
 
@@ -37,78 +40,58 @@ public class TransactionServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private BankService bankService;
-
-    @Mock
-    private CategoryService categoryService;
-
     @InjectMocks
     private TransactionService transactionService;
 
     @Test
-    public void create_transaction_success() {
-        NewTransactionRequestDto newTransactionRequestDto = new NewTransactionRequestDto(
+    public void create_success() {
+        // Arrange
+        NewTransactionRequestDto request = new NewTransactionRequestDto(
                 PersonType.PHYSICAL,
-                TransactionType.INCOME,
-                new BigDecimal(7777),
-                "Sberbank",
-                "Sberbank",
-                "123456",
-                "accountReceiver",
-                "TestCategory",
-                "89086428563"
+                TransactionType.EXPENSE,
+                LocalDateTime.parse("2023-10-01T12:00"),
+                TransactionStatus.NEW,
+                BigDecimal.valueOf(150.75),
+                1L,
+                2L,
+                "12345678901",
+                "ACC_123",
+                "ACC_456",
+                3L,
+                "+79123456789"
         );
 
-        Bank bank = new Bank();
-        bank.setId(1L);
+        User mockUser = new User();
+        mockUser.setId(5L);
 
-        Category category = new Category();
-        category.setId(1L);
+        Transaction savedTransaction = new Transaction();
+        savedTransaction.setId(99L);
+        savedTransaction.setCreatedBy(mockUser);
 
-        Transaction transaction = new Transaction();
-        transaction.setId(14L);
+        when(userService.getAuthorizedUser()).thenReturn(mockUser);
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> {
+            Transaction entity = invocation.getArgument(0);
+            entity.setId(99L);
+            entity.setCreatedBy(mockUser);
+            return entity;
+        });
 
-        User user = new User();
-        user.setId(1L);
+        // Act
+        TransactionResponseDto result = transactionService.create(request);
 
-        when(userService.getUser()).thenReturn(user);
-        when(transactionRepository.save(any())).thenReturn(transaction);
-
-        boolean result = transactionService.create(newTransactionRequestDto);
-        assertTrue(result);
-    }
-
-    @Test
-    public void create_transaction_failed() {
-        NewTransactionRequestDto newTransactionRequestDto = new NewTransactionRequestDto(
-                PersonType.PHYSICAL,
-                TransactionType.INCOME,
-                new BigDecimal(7777),
-                "Sberbank",
-                "Sberbank",
-                "123456",
-                "accountReceiver",
-                "TestCategory",
-                "89086428563"
+        // Assert
+        assertAll(
+                () -> assertNotNull(result, "Ответ не должен быть null"),
+                () -> assertEquals(99L, result.id(), "Неверный ID транзакции"),
+                () -> assertEquals(mockUser.getId(), savedTransaction.getCreatedBy().getId(), "Создатель не совпадает"),
+                () -> assertEquals(request.amount(), result.amount(), "Сумма не совпадает"),
+                () -> assertEquals(request.transactionDate(), result.transactionDate(), "Дата транзакции не совпадает"),
+                () -> assertEquals(request.phoneReceiver(), result.phoneReceiver(), "Телефон получателя не совпадает")
         );
 
-        Bank bank = new Bank();
-        bank.setId(1L);
-
-        Category category = new Category();
-        category.setId(1L);
-
-        Transaction transaction = new Transaction();
-        transaction.setId(14L);
-
-        User user = new User();
-        user.setId(1L);
-
-        when(userService.getUser()).thenReturn(user);
-        when(transactionRepository.save(any())).thenThrow(new IllegalArgumentException("IllegalArgumentException"));
-
-        RuntimeException ex = assertThrows(IllegalArgumentException.class, () -> transactionService.create(newTransactionRequestDto));
-        assertTrue(ex.getMessage().contains("IllegalArgumentException"));
+        verify(transactionMapper).toEntity(request);
+        verify(userService).getAuthorizedUser();
+        verify(transactionRepository).save(any(Transaction.class));
+        verify(transactionMapper).toDto(any(Transaction.class));
     }
 }

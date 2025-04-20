@@ -55,32 +55,33 @@ public class Transaction {
     private TransactionStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "bank_sender_id")
+    @JoinColumn(name = "bank_sender_id", nullable = false)
     private Bank bankSender;
 
     @ManyToOne
-    @JoinColumn(name = "bank_receiver_id")
+    @JoinColumn(name = "bank_receiver_id", nullable = false)
     private Bank bankReceiver;
 
-    @Column(name = "inn_receiver", nullable = false, length = 12)
+    @Pattern(regexp = "\\d{11}", message = "ИНН должен содержать ровно 11 цифр")
+    @Column(name = "inn_receiver", nullable = false)
     private String innReceiver;
 
     @Column(name = "account_receiver", nullable = false)
     private String accountReceiver;
 
+    @Column(name = "account_sender", nullable = false)
+    private String accountSender;
+
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Pattern(
-            regexp = "^(\\+7|8)\\d{10}$",
-            message = "Телефон должен начинаться с +7 или 8 и содержать 10 цифр после"
-
-    )
+    @Column(name = "phone_receiver", nullable = false)
+    @Pattern(regexp = "^(\\+7|8)\\d{10}$", message = "Телефон должен начинаться с +7 или 8 и содержать 11 цифр")
     private String phoneReceiver;
 
     @ManyToOne
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
     @ManyToOne

@@ -17,8 +17,8 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @PostMapping()
+    @PostMapping
     public TransactionResponseDto create(@Valid @RequestBody NewTransactionRequestDto request) {
-        return new TransactionResponseDto(transactionService.create(request));
+        return transactionService.create(request);
     }
 }

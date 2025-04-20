@@ -11,7 +11,7 @@ CREATE TABLE categories (
 
 CREATE TABLE banks (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE transactions (
@@ -21,13 +21,14 @@ CREATE TABLE transactions (
     transaction_type VARCHAR(50) NOT NULL,
     amount DECIMAL(15,5) NOT NULL,
     status VARCHAR(50) NOT NULL,
-    bank_sender_id BIGINT,
-    bank_receiver_id BIGINT,
-    inn_receiver VARCHAR(50),
-    account_receiver VARCHAR(50),
-    category_id BIGINT,
-    phone_receiver VARCHAR(20),
-    created_by BIGINT,
+    bank_sender_id BIGINT NOT NULL ,
+    bank_receiver_id BIGINT NOT NULL ,
+    inn_receiver VARCHAR(50) NOT NULL ,
+    account_receiver VARCHAR(50) NOT NULL ,
+    account_sender VARCHAR(50) NOT NULL,
+    category_id BIGINT NOT NULL,
+    phone_receiver VARCHAR(20) NOT NULL ,
+    created_by BIGINT NOT NULL,
     updated_by BIGINT,
 
     CONSTRAINT fk_sender_bank FOREIGN KEY (bank_sender_id) REFERENCES banks (id),

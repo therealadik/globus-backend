@@ -1,9 +1,7 @@
 package com.example.globus.service;
 
 import com.example.globus.entity.Bank;
-import com.example.globus.entity.Category;
 import com.example.globus.repository.BankRepository;
-import com.example.globus.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class BackServiceTest {
+public class BankServiceTest {
 
     @InjectMocks
     private BankService bankService;
-
 
     @Mock
     private BankRepository bankRepository;

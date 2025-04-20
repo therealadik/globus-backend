@@ -1,6 +1,5 @@
 package com.example.globus.repository;
 
-import com.example.globus.entity.Bank;
 import com.example.globus.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

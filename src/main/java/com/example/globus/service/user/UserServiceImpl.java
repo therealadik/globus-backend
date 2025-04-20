@@ -1,15 +1,14 @@
 package com.example.globus.service.user;
 
-import com.example.globus.dto.RegistrationRequestDto;
-import com.example.globus.mapstruct.UserMapper;
+import com.example.globus.dto.authentication.RegistrationRequestDto;
 import com.example.globus.entity.user.User;
+import com.example.globus.mapstruct.UserMapper;
 import com.example.globus.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,12 +46,11 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         return userRepository.save(user);
     }
 
-    public User getUser() {
+    @Override
+    public User getAuthorizedUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

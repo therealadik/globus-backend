@@ -252,9 +252,9 @@ class DashboardServiceTest {
     void getDebitTransactionsDashboard_WithNonCompletedStatus_ShouldExcludeTransactions() {
         // Arrange
         Transaction pendingTransaction = Transaction.builder()
-                .amount(BigDecimal.valueOf(-100))
+                .amount(BigDecimal.valueOf(-75))
                 .category(category1)
-                .status(TransactionStatus.PENDING)
+                .status(TransactionStatus.NEW)
                 .build();
 
         List<Transaction> transactions = Arrays.asList(debitTransaction1, pendingTransaction);
@@ -265,15 +265,24 @@ class DashboardServiceTest {
         // Assert
         assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getTotalDebitAmount());
         assertEquals(1, response.getTotalDebitTransactions());
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), response.getAverageDebitAmount());
+
+        Map<String, BigDecimal> debitsByCategory = response.getDebitsByCategory();
+        assertEquals(1, debitsByCategory.size());
+        assertEquals(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP), debitsByCategory.get("Food"));
+
+        Map<String, Long> countByCategory = response.getTransactionCountByCategory();
+        assertEquals(1, countByCategory.size());
+        assertEquals(1L, countByCategory.get("Food"));
     }
 
     @Test
     void getCreditTransactionsDashboard_WithNonCompletedStatus_ShouldExcludeTransactions() {
         // Arrange
         Transaction pendingTransaction = Transaction.builder()
-                .amount(BigDecimal.valueOf(100))
+                .amount(BigDecimal.valueOf(75))
                 .category(category1)
-                .status(TransactionStatus.PENDING)
+                .status(TransactionStatus.NEW)
                 .build();
 
         List<Transaction> transactions = Arrays.asList(creditTransaction1, pendingTransaction);
@@ -284,5 +293,14 @@ class DashboardServiceTest {
         // Assert
         assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getTotalCreditAmount());
         assertEquals(1, response.getTotalCreditTransactions());
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), response.getAverageCreditAmount());
+
+        Map<String, BigDecimal> creditsByCategory = response.getCreditsByCategory();
+        assertEquals(1, creditsByCategory.size());
+        assertEquals(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP), creditsByCategory.get("Food"));
+
+        Map<String, Long> countByCategory = response.getTransactionCountByCategory();
+        assertEquals(1, countByCategory.size());
+        assertEquals(1L, countByCategory.get("Food"));
     }
 } 

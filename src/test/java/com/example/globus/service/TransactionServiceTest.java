@@ -12,16 +12,17 @@ import com.example.globus.entity.transaction.TransactionType;
 import com.example.globus.entity.user.User;
 import com.example.globus.entity.user.UserRole;
 import com.example.globus.mapstruct.TransactionMapper;
-import org.mapstruct.factory.Mappers;import com.example.globus.repository.TransactionRepository;
+import com.example.globus.repository.TransactionRepository;
 import com.example.globus.service.user.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -67,10 +68,10 @@ public class TransactionServiceTest {
         when(userService.getAuthorizedUser()).thenReturn(mockUser);
 
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> {
-            Transaction entity = invocation.getArgument(0);
-            entity.setId(99L);
-            entity.setCreatedBy(mockUser);
-            return entity;
+            Transaction tx = invocation.getArgument(0);
+            tx.setId(99L);
+            tx.setCreatedBy(mockUser);
+            return tx;
         });
 
         TransactionResponseDto result = transactionService.create(request);
@@ -107,8 +108,10 @@ public class TransactionServiceTest {
                 "+79123456789"
         );
 
-        User currentUser = new User(); currentUser.setId(4L); currentUser.setRole(UserRole.USER);
-        User creator = new User(); creator.setId(4L); creator.setRole(UserRole.USER);
+        User currentUser = new User();
+        currentUser.setId(4L);
+        currentUser.setRole(UserRole.USER);
+        when(userService.getAuthorizedUser()).thenReturn(currentUser);
 
         Transaction tx = Transaction.builder()
                 .id(1L)
@@ -124,16 +127,60 @@ public class TransactionServiceTest {
                 .accountSender("OLD_ACC_456")
                 .category(new Category())
                 .phoneReceiver("+79999956789")
-                .createdBy(creator)
+                .createdBy(currentUser)
                 .build();
 
-        when(userService.getAuthorizedUser()).thenReturn(currentUser);
         when(transactionRepository.findById(1L)).thenReturn(Optional.of(tx));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> {
-            transactionMapper.updateEntityFromDto(dto, tx);
-            tx.setUpdatedBy(currentUser);
-            return tx;
-        });
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TransactionResponseDto result = transactionService.updateTransaction(dto);
+        assertNotNull(result);
+        assertEquals(dto.accountReceiver(), result.accountReceiver());
+        assertEquals(dto.phoneReceiver(), result.phoneReceiver());
+    }
+
+    @Test
+    public void testUpdateTransactionByAdmin() {
+        UpdateTransactionRequestDto dto = new UpdateTransactionRequestDto(
+                1L,
+                PersonType.PHYSICAL,
+                TransactionType.EXPENSE,
+                LocalDateTime.parse("2023-10-01T12:00"),
+                TransactionStatus.NEW,
+                BigDecimal.valueOf(150.75),
+                1L,
+                2L,
+                "12345678901",
+                "ACC_123",
+                "ACC_456",
+                3L,
+                "+79123456789"
+        );
+
+        User admin = new User();
+        admin.setId(50L);
+        admin.setRole(UserRole.ADMIN);
+        when(userService.getAuthorizedUser()).thenReturn(admin);
+
+        Transaction tx = Transaction.builder()
+                .id(1L)
+                .transactionDate(LocalDateTime.parse("2025-10-01T12:00"))
+                .personType(PersonType.PHYSICAL)
+                .transactionType(TransactionType.EXPENSE)
+                .amount(BigDecimal.valueOf(150.75))
+                .status(TransactionStatus.NEW)
+                .bankSender(new Bank())
+                .bankReceiver(new Bank())
+                .innReceiver("98765432109")
+                .accountReceiver("OLD_ACC_123")
+                .accountSender("OLD_ACC_456")
+                .category(new Category())
+                .phoneReceiver("+79999956789")
+                .createdBy(new User() {{ setId(4L); setRole(UserRole.USER); }})
+                .build();
+
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(tx));
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TransactionResponseDto result = transactionService.updateTransaction(dto);
         assertNotNull(result);
@@ -143,13 +190,13 @@ public class TransactionServiceTest {
 
     @Test
     public void testCancelTransaction_Success() {
-        User user = new User(); user.setId(1L);
+        User user = new User();
+        user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
 
         Transaction tx = Transaction.builder()
                 .id(10L)
                 .status(TransactionStatus.NEW)
-                .createdBy(user)
                 .transactionDate(LocalDateTime.now())
                 .personType(PersonType.PHYSICAL)
                 .transactionType(TransactionType.EXPENSE)
@@ -162,28 +209,20 @@ public class TransactionServiceTest {
                 .category(new Category())
                 .phoneReceiver("+79999999999")
                 .build();
+
+        tx.setCreatedBy(user);
         when(transactionRepository.findById(10L)).thenReturn(Optional.of(tx));
-        // stub save to return the passed entity
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        TransactionResponseDto expected = new TransactionResponseDto(
-                10L, tx.getTransactionDate(), tx.getPersonType(), tx.getTransactionType(),
-                tx.getAmount(), TransactionStatus.DELETED,
-                tx.getBankSender().getId(), tx.getBankReceiver().getId(),
-                tx.getInnReceiver(), tx.getAccountReceiver(), tx.getAccountSender(),
-                tx.getCategory().getId(), tx.getPhoneReceiver()
-        );
-        when(transactionMapper.toDto(any(Transaction.class))).thenReturn(expected);
-
         TransactionResponseDto result = transactionService.cancelTransaction(10L);
-        assertEquals(expected, result);
+        assertEquals(TransactionStatus.DELETED, result.status());
         verify(transactionRepository).save(tx);
-        verify(transactionMapper).toDto(tx);
     }
 
     @Test
     public void testCancelTransaction_ForbiddenStatus() {
-        User user = new User(); user.setId(1L);
+        User user = new User();
+        user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
 
         Transaction tx = Transaction.builder()
@@ -198,14 +237,14 @@ public class TransactionServiceTest {
 
     @Test
     public void testCancelTransaction_Unauthorized() {
-        User user = new User(); user.setId(1L);
+        User user = new User();
+        user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
 
-        User other = new User(); other.setId(2L);
         Transaction tx = Transaction.builder()
                 .id(30L)
                 .status(TransactionStatus.NEW)
-                .createdBy(other)
+                .createdBy(new User() {{ setId(2L); setRole(UserRole.USER); }})
                 .build();
         when(transactionRepository.findById(30L)).thenReturn(Optional.of(tx));
 

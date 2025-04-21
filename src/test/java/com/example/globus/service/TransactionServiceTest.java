@@ -163,6 +163,8 @@ public class TransactionServiceTest {
                 .phoneReceiver("+79999999999")
                 .build();
         when(transactionRepository.findById(10L)).thenReturn(Optional.of(tx));
+        // stub save to return the passed entity
+        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TransactionResponseDto expected = new TransactionResponseDto(
                 10L, tx.getTransactionDate(), tx.getPersonType(), tx.getTransactionType(),

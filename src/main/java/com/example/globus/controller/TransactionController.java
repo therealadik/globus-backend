@@ -26,16 +26,12 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping
-    public TransactionResponseDto create(
-            @Valid @RequestBody NewTransactionRequestDto request
-    ) {
+    public TransactionResponseDto create(@Valid @RequestBody NewTransactionRequestDto request) {
         return transactionService.create(request);
     }
 
     @PutMapping
-    public TransactionResponseDto updateTransaction(
-            @Valid @RequestBody UpdateTransactionRequestDto request
-    ) {
+    public TransactionResponseDto updateTransaction(@Valid @RequestBody UpdateTransactionRequestDto request) {
         return transactionService.updateTransaction(request);
     }
 

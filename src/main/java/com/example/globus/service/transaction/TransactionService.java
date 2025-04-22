@@ -1,6 +1,11 @@
-package com.example.globus.service;
+package com.example.globus.service.transaction;
 
+import com.example.globus.dto.TransactionFilterResponseDto;
+import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
+import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.dashboard.TransactionCountDto;
 import com.example.globus.dto.transaction.NewTransactionRequestDto;
+import com.example.globus.dto.transaction.TransactionFilterDto;
 import com.example.globus.dto.transaction.TransactionResponseDto;
 import com.example.globus.dto.transaction.UpdateTransactionRequestDto;
 import com.example.globus.entity.transaction.Transaction;
@@ -9,13 +14,16 @@ import com.example.globus.entity.user.User;
 import com.example.globus.entity.user.UserRole;
 import com.example.globus.mapstruct.TransactionMapper;
 import com.example.globus.repository.TransactionRepository;
+import com.example.globus.service.DashboardService;
 import com.example.globus.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +32,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserService userService;
     private final TransactionMapper transactionMapper;
+    private final TransactionFilterService transactionFilterService;
 
     private static final EnumSet<TransactionStatus> BLOCKED = EnumSet.of(
             TransactionStatus.CONFIRMED,
@@ -32,6 +41,7 @@ public class TransactionService {
             TransactionStatus.COMPLETED,
             TransactionStatus.RETURNED
     );
+    private final DashboardService dashboardService;
 
     @Transactional
     public TransactionResponseDto create(NewTransactionRequestDto dto) {
@@ -60,6 +70,7 @@ public class TransactionService {
 
     /**
      * Отменяет транзакцию: проверяет авторство и статус, меняет на CANCELED.
+     *
      * @param id ID транзакции
      * @return DTO с обновлённым статусом
      */
@@ -76,6 +87,25 @@ public class TransactionService {
         tx.setStatus(TransactionStatus.DELETED);
         tx.setUpdatedBy(current);
         return transactionMapper.toDto(tx);
+    }
+
+    @Transactional(readOnly = true)
+    public TransactionFilterResponseDto findTransactionsByFilter(TransactionFilterDto filter) {
+        Specification<Transaction> specification = transactionFilterService.createSpecification(filter);
+        List<Transaction> transactions = transactionRepository.findAll(specification);
+
+        TransactionCountDto transactionCountDto = dashboardService.calculateTransactionCounts(transactions);
+        DebitCreditTransactionsDto debitCreditTransactionsDto = dashboardService.calculateDebitCreditTransactions(transactions);
+        IncomeExpenseComparisonDto incomeExpenseComparisonDto = dashboardService.calculateIncomeExpenseComparison(transactions);
+
+        return new TransactionFilterResponseDto(
+                null,
+                debitCreditTransactionsDto,
+                incomeExpenseComparisonDto,
+                null,
+                null,
+                transactionCountDto
+        );
     }
 
     @Transactional(readOnly = true)

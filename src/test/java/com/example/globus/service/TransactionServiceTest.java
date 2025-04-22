@@ -13,6 +13,7 @@ import com.example.globus.entity.user.User;
 import com.example.globus.entity.user.UserRole;
 import com.example.globus.mapstruct.TransactionMapper;
 import com.example.globus.repository.TransactionRepository;
+import com.example.globus.service.transaction.TransactionService;
 import com.example.globus.service.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -24,5 +24,4 @@ public interface TransactionMapper {
     @Mapping(target = "bankReceiver.id", source = "bankReceiverId")
     @Mapping(target = "category.id", source = "categoryId")
     void updateEntityFromDto(UpdateTransactionRequestDto updateTransactionRequestDto, @MappingTarget Transaction transaction);
-
 }

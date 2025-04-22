@@ -189,7 +189,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void testCancelTransaction_Success() {
+    public void testDeleteTransaction_Success() {
         User user = new User();
         user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
@@ -212,15 +212,13 @@ public class TransactionServiceTest {
 
         tx.setCreatedBy(user);
         when(transactionRepository.findById(10L)).thenReturn(Optional.of(tx));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        TransactionResponseDto result = transactionService.cancelTransaction(10L);
+        TransactionResponseDto result = transactionService.deleteTransaction(10L);
         assertEquals(TransactionStatus.DELETED, result.status());
-        verify(transactionRepository).save(tx);
     }
 
     @Test
-    public void testCancelTransaction_ForbiddenStatus() {
+    public void testDeleteTransaction_ForbiddenStatus() {
         User user = new User();
         user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
@@ -232,11 +230,11 @@ public class TransactionServiceTest {
                 .build();
         when(transactionRepository.findById(20L)).thenReturn(Optional.of(tx));
 
-        assertThrows(IllegalStateException.class, () -> transactionService.cancelTransaction(20L));
+        assertThrows(IllegalStateException.class, () -> transactionService.deleteTransaction(20L));
     }
 
     @Test
-    public void testCancelTransaction_Unauthorized() {
+    public void testDeleteTransaction_Unauthorized() {
         User user = new User();
         user.setId(1L);
         when(userService.getAuthorizedUser()).thenReturn(user);
@@ -248,12 +246,12 @@ public class TransactionServiceTest {
                 .build();
         when(transactionRepository.findById(30L)).thenReturn(Optional.of(tx));
 
-        assertThrows(IllegalStateException.class, () -> transactionService.cancelTransaction(30L));
+        assertThrows(IllegalStateException.class, () -> transactionService.deleteTransaction(30L));
     }
 
     @Test
-    public void testCancelTransaction_NotFound() {
+    public void testDeleteTransaction_NotFound() {
         when(transactionRepository.findById(40L)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> transactionService.cancelTransaction(40L));
+        assertThrows(EntityNotFoundException.class, () -> transactionService.deleteTransaction(40L));
     }
 }

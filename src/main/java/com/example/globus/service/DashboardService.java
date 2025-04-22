@@ -1,9 +1,6 @@
 package com.example.globus.service;
 
-import com.example.globus.dto.dashboard.BankTransactionCountDto;
-import com.example.globus.dto.dashboard.TransactionCountDto;
-import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
-import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.dashboard.*;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
@@ -69,7 +66,7 @@ public class DashboardService {
         return new IncomeExpenseComparisonDto(incomeAmount, expenseAmount);
     }
 
-    public List<BankTransactionCountDto> calculateBankStatistics(List<Transaction> transactions) {
+    public List<BankTransactionStatisticsDto> calculateBankStatistics(List<Transaction> transactions) {
         Map<String, Long> groupedTransactions = transactions.stream()
                 .collect(Collectors.groupingBy(
                         t -> t.getBankSender().getName() + "|" + t.getBankReceiver().getName(),
@@ -82,9 +79,9 @@ public class DashboardService {
                     String senderBankName = banks[0];
                     String receiverBankName = banks[1];
                     long transactionCount = entry.getValue();
-                    return new BankTransactionCountDto(senderBankName, receiverBankName, transactionCount);
+                    return new BankTransactionStatisticsDto(senderBankName, receiverBankName, transactionCount);
                 })
-                .sorted(Comparator.comparingLong(BankTransactionCountDto::getTransactionCount).reversed())
+                .sorted(Comparator.comparingLong(BankTransactionStatisticsDto::transactionCount).reversed())
                 .collect(Collectors.toList());
     }
 }

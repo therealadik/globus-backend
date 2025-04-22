@@ -1,9 +1,6 @@
 package com.example.globus.service;
 
-import com.example.globus.dto.dashboard.BankTransactionCountDto;
-import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
-import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
-import com.example.globus.dto.dashboard.TransactionCountDto;
+import com.example.globus.dto.dashboard.*;
 import com.example.globus.entity.Bank;
 import com.example.globus.entity.Category;
 import com.example.globus.entity.transaction.PersonType;
@@ -111,12 +108,12 @@ class DashboardServiceTest {
                 new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
                 new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "Сбербанк"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User())
         );
-        List<BankTransactionCountDto> expected = Arrays.asList(
-                new BankTransactionCountDto("Сбербанк", "ВТБ", 4L),
-                new BankTransactionCountDto("Тинькофф", "ВТБ", 2L),
-                new BankTransactionCountDto("Сбербанк", "Сбербанк", 1L)
+        List<BankTransactionStatisticsDto> expected = Arrays.asList(
+                new BankTransactionStatisticsDto("Сбербанк", "ВТБ", 4L),
+                new BankTransactionStatisticsDto("Тинькофф", "ВТБ", 2L),
+                new BankTransactionStatisticsDto("Сбербанк", "Сбербанк", 1L)
         );
-        List<BankTransactionCountDto> actual = dashboardService.calculateBankStatistics(transactions);
+        List<BankTransactionStatisticsDto> actual = dashboardService.calculateBankStatistics(transactions);
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
     }
 }

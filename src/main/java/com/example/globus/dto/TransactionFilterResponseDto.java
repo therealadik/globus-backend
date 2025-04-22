@@ -7,8 +7,10 @@ import com.example.globus.dto.dashboard.TransactionCategoryStatsDto;
 import com.example.globus.dto.dashboard.TransactionCountByPeriodDto;
 import com.example.globus.dto.dashboard.TransactionCountDto;
 
+import java.util.List;
+
 public record TransactionFilterResponseDto(
-        BankTransactionStatisticsDto bankTransactionStatistics,
+        List<BankTransactionStatisticsDto> bankTransactionStatistics,
         DebitCreditTransactionsDto debitCreditTransactions,
         IncomeExpenseComparisonDto incomeExpenseComparison,
         TransactionCategoryStatsDto transactionCategoryStats,

@@ -4,7 +4,6 @@ import com.example.globus.dto.dashboard.BankTransactionCountDto;
 import com.example.globus.dto.dashboard.TransactionCountDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
 import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
-import com.example.globus.dto.transaction.TransactionDto;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
@@ -70,10 +69,10 @@ public class DashboardService {
         return new IncomeExpenseComparisonDto(incomeAmount, expenseAmount);
     }
 
-    public List<BankTransactionCountDto> calculateBankStatistics(List<TransactionDto> transactions) {
+    public List<BankTransactionCountDto> calculateBankStatistics(List<Transaction> transactions) {
         Map<String, Long> groupedTransactions = transactions.stream()
                 .collect(Collectors.groupingBy(
-                        t -> t.getBankSender() + "|" + t.getBankReceiver(),
+                        t -> t.getBankSender().getName() + "|" + t.getBankReceiver().getName(),
                         Collectors.counting()
                 ));
 

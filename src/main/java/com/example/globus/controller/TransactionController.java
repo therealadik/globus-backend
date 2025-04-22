@@ -31,7 +31,7 @@ public class TransactionController {
         return transactionService.updateTransaction(request);
     }
 
-    @DeleteMapping("/{id}/")
+    @DeleteMapping("/{id}")
     public void deleteTransaction(@Valid @Positive @PathVariable Long id) {
         transactionService.deleteTransaction(id);
     }

@@ -1,11 +1,13 @@
 package com.example.globus.service;
 
-import com.example.globus.dto.dashboard.TransactionCountDto;
-import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
-import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.dashboard.*;
+import com.example.globus.entity.Bank;
+import com.example.globus.entity.Category;
+import com.example.globus.entity.transaction.PersonType;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
+import com.example.globus.entity.user.User;
 import com.example.globus.mapstruct.TransactionMapper;
 import com.example.globus.mapstruct.TransactionMapperImpl;
 import org.junit.jupiter.api.Test;
@@ -15,8 +17,11 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -88,5 +93,27 @@ class DashboardServiceTest {
                 "Сумма доходов должна быть 100.50 + 200.75 = 301.25");
         assertEquals(new BigDecimal("50.25"), result.expenseAmount(),
                 "Сумма расходов должна быть 50.25");
+    }
+
+    @Test
+    public void calculateBankStatistics_test() {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Transaction> transactions = Arrays.asList(
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Тинькофф"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Тинькофф"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, now, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"),new Bank(1L, "Сбербанк"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User())
+        );
+        List<BankTransactionStatisticsDto> expected = Arrays.asList(
+                new BankTransactionStatisticsDto("Сбербанк", "ВТБ", 4L),
+                new BankTransactionStatisticsDto("Тинькофф", "ВТБ", 2L),
+                new BankTransactionStatisticsDto("Сбербанк", "Сбербанк", 1L)
+        );
+        List<BankTransactionStatisticsDto> actual = dashboardService.calculateBankStatistics(transactions);
+        assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
     }
 }

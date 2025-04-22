@@ -1,8 +1,6 @@
 package com.example.globus.service;
 
-import com.example.globus.dto.dashboard.TransactionCountDto;
-import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
-import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.dashboard.*;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
@@ -10,8 +8,11 @@ import com.example.globus.mapstruct.TransactionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 /**
  * Рассчитывает статистику для дашборда.
@@ -63,5 +64,24 @@ public class DashboardService {
                 .reduce(BigDecimal.ZERO,  BigDecimal::add);
 
         return new IncomeExpenseComparisonDto(incomeAmount, expenseAmount);
+    }
+
+    public List<BankTransactionStatisticsDto> calculateBankStatistics(List<Transaction> transactions) {
+        Map<String, Long> groupedTransactions = transactions.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.getBankSender().getName() + "|" + t.getBankReceiver().getName(),
+                        Collectors.counting()
+                ));
+
+        return groupedTransactions.entrySet().stream()
+                .map(entry -> {
+                    String[] banks = entry.getKey().split("\\|" );
+                    String senderBankName = banks[0];
+                    String receiverBankName = banks[1];
+                    long transactionCount = entry.getValue();
+                    return new BankTransactionStatisticsDto(senderBankName, receiverBankName, transactionCount);
+                })
+                .sorted(Comparator.comparingLong(BankTransactionStatisticsDto::transactionCount).reversed())
+                .collect(Collectors.toList());
     }
 }

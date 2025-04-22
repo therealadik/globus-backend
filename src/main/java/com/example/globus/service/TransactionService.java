@@ -10,44 +10,83 @@ import com.example.globus.entity.user.UserRole;
 import com.example.globus.mapstruct.TransactionMapper;
 import com.example.globus.repository.TransactionRepository;
 import com.example.globus.service.user.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumSet;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
+
     private final TransactionRepository transactionRepository;
     private final UserService userService;
     private final TransactionMapper transactionMapper;
 
-    @Transactional
-    public TransactionResponseDto create(NewTransactionRequestDto requestDto) {
-        Transaction transaction = transactionMapper.toEntity(requestDto);
-        transaction.setCreatedBy(userService.getAuthorizedUser());
+    private static final EnumSet<TransactionStatus> BLOCKED = EnumSet.of(
+            TransactionStatus.CONFIRMED,
+            TransactionStatus.PROCESSING,
+            TransactionStatus.CANCELED,
+            TransactionStatus.COMPLETED,
+            TransactionStatus.RETURNED
+    );
 
-        transaction = transactionRepository.save(transaction);
-        return transactionMapper.toDto(transaction);
+    @Transactional
+    public TransactionResponseDto create(NewTransactionRequestDto dto) {
+        Transaction tx = transactionMapper.toEntity(dto);
+        tx.setCreatedBy(userService.getAuthorizedUser());
+        tx = transactionRepository.save(tx);
+        return transactionMapper.toDto(tx);
     }
 
     @Transactional
-    public TransactionResponseDto updateTransaction(UpdateTransactionRequestDto transactionRequestDto) {
-        Transaction transaction = transactionRepository.getById(transactionRequestDto.id());
+    public TransactionResponseDto updateTransaction(UpdateTransactionRequestDto dto) {
+        Transaction tx = transactionRepository.findById(dto.id())
+                .orElseThrow(() -> new EntityNotFoundException("Transaction " + dto.id() + " not found"));
+        if (tx.getStatus() != TransactionStatus.NEW) {
+            throw new IllegalStateException("Transaction status " + tx.getStatus() + " cannot be updated");
+        }
+        User current = userService.getAuthorizedUser();
+        if (!tx.getCreatedBy().getId().equals(current.getId()) && current.getRole() != UserRole.ADMIN) {
+            throw new IllegalStateException("No rights to update this transaction");
+        }
+        transactionMapper.updateEntityFromDto(dto, tx);
+        tx.setUpdatedBy(current);
+        tx = transactionRepository.save(tx);
+        return transactionMapper.toDto(tx);
+    }
 
-        if (transaction == null)
-            throw new RuntimeException("Транзакция с " + transactionRequestDto.id() + "не найдена");
-        if (!transaction.getStatus().equals(TransactionStatus.NEW))
-            throw new RuntimeException("Транзакция не может быть изменена, её статус: " + transaction.getStatus());
+    /**
+     * Отменяет транзакцию: проверяет авторство и статус, меняет на CANCELED.
+     * @param id ID транзакции
+     * @return DTO с обновлённым статусом
+     */
+    @Transactional
+    public TransactionResponseDto deleteTransaction(Long id) {
+        Transaction tx = findById(id);
+        User current = userService.getAuthorizedUser();
+        validUserOwnerTransaction(tx, current);
 
-        User currentUser = userService.getAuthorizedUser();
+        if (BLOCKED.contains(tx.getStatus())) {
+            throw new IllegalStateException("Transaction status " + tx.getStatus() + " cannot be deleted");
+        }
 
-        if (transaction.getCreatedBy().getId().equals(currentUser.getId()) || currentUser.getRole().equals(UserRole.ADMIN)) {
-            transactionMapper.updateEntityFromDto(transactionRequestDto, transaction);
-            transaction.setUpdatedBy(currentUser);
-            transaction = transactionRepository.save(transaction);
-            return transactionMapper.toDto(transaction);
-        } else throw new RuntimeException("У вас нет прав на редактирование данной транзакции");
+        tx.setStatus(TransactionStatus.DELETED);
+        tx.setUpdatedBy(current);
+        return transactionMapper.toDto(tx);
+    }
 
+    @Transactional(readOnly = true)
+    public Transaction findById(Long id) {
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction " + id + " not found"));
+    }
 
+    private void validUserOwnerTransaction(Transaction tx, User user) {
+        if (!tx.getCreatedBy().getId().equals(user.getId()) && user.getRole() != UserRole.ADMIN) {
+            throw new IllegalStateException("You cannot cancel this transaction");
+        }
     }
 }

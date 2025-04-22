@@ -1,13 +1,16 @@
 package com.example.globus.service;
 
+import com.example.globus.dto.dashboard.BankTransactionCountDto;
 import com.example.globus.dto.dashboard.TransactionCountDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
 import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.transaction.TransactionDto;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
 import com.example.globus.mapstruct.TransactionMapper;
 import com.example.globus.mapstruct.TransactionMapperImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,5 +92,26 @@ class DashboardServiceTest {
                 "Сумма доходов должна быть 100.50 + 200.75 = 301.25");
         assertEquals(new BigDecimal("50.25"), result.expenseAmount(),
                 "Сумма расходов должна быть 50.25");
+    }
+
+    @Test
+    public void calculateBankStatistics_test() {
+        List<TransactionDto> transactions = Arrays.asList(
+                new TransactionDto("Тинькофф", "ВТБ"),
+                new TransactionDto("Тинькофф", "ВТБ"),
+                new TransactionDto("Сбербанк", "ВТБ"),
+                new TransactionDto("Сбербанк", "ВТБ"),
+                new TransactionDto("Сбербанк", "ВТБ"),
+                new TransactionDto("Сбербанк", "ВТБ"),
+                new TransactionDto("Сбербанк", "Сбербанк")
+        );
+
+        List<BankTransactionCountDto> expected = Arrays.asList(
+                new BankTransactionCountDto("Сбербанк", "ВТБ", 4L),
+                new BankTransactionCountDto("Тинькофф", "ВТБ", 2L),
+                new BankTransactionCountDto("Сбербанк", "Сбербанк", 1L)
+        );
+        List<BankTransactionCountDto> actual = dashboardService.calculateBankStatistics(transactions);
+        Assertions.assertEquals(expected, actual);
     }
 }

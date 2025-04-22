@@ -16,15 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.example.globus.dto.dashboard.BankTransactionCountDto;
-import com.example.globus.dto.transaction.TransactionDto;
-
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Рассчитывает статистику для дашборда.

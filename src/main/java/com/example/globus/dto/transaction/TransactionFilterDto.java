@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record TransactionFilterDTO(
+public record TransactionFilterDto(
     Long bankSenderId,
     Long bankReceiverId,
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -23,7 +23,6 @@ public record TransactionFilterDTO(
     TransactionType transactionType, 
     Long categoryId 
 ) {
-    // Вспомогательный метод для проверки, установлен ли хотя бы один фильтр
     public boolean isAnyFilterSet() {
         return bankSenderId != null || bankReceiverId != null ||
                specificDate != null || dateFrom != null || dateTo != null ||

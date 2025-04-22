@@ -1,6 +1,6 @@
 package com.example.globus.service;
 
-import com.example.globus.dto.dashboard.DashboardTransactionCountDto;
+import com.example.globus.dto.dashboard.TransactionCountDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
 import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
 import com.example.globus.entity.transaction.Transaction;
@@ -27,13 +27,14 @@ public class DashboardService {
      * @param transactions список транзакций
      * @return DTO с двумя показателями
      */
-    public DashboardTransactionCountDto calculateTransactionCounts(List<Transaction> transactions) {
+
+    public TransactionCountDto calculateTransactionCounts(List<Transaction> transactions) {
         long canceled = transactions.stream()
                 .filter(t -> t.getStatus() == TransactionStatus.CANCELED
                         || t.getStatus() == TransactionStatus.DELETED)
                 .count();
         long completed = transactions.size() - canceled;
-        return new DashboardTransactionCountDto((int) completed, (int) canceled);
+        return new TransactionCountDto((int) completed, (int) canceled);
     }
 
     public DebitCreditTransactionsDto calculateDebitCreditTransactions(List<Transaction> transactions) {

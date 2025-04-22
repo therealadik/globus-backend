@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record IncomeExpenseComparisonDto(BigDecimal incomeAmount,
-                                         BigDecimal expenseAmount) {
+public record IncomeExpenseComparisonDto(
+        BigDecimal incomeAmount,
+        BigDecimal expenseAmount) {
 }

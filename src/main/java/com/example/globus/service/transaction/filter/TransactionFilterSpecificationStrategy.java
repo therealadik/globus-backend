@@ -1,6 +1,6 @@
 package com.example.globus.service.transaction.filter;
 
-import com.example.globus.dto.transaction.TransactionFilterDTO;
+import com.example.globus.dto.transaction.TransactionFilterDto;
 import com.example.globus.entity.transaction.Transaction;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -16,7 +16,7 @@ public interface TransactionFilterSpecificationStrategy {
      * @param filter DTO с параметрами фильтрации.
      * @return true, если стратегия применима, иначе false.
      */
-    boolean supports(TransactionFilterDTO filter);
+    boolean supports(TransactionFilterDto filter);
 
     /**
      * Создает Predicate на основе параметров фильтра.
@@ -25,5 +25,5 @@ public interface TransactionFilterSpecificationStrategy {
      * @param criteriaBuilder Построитель критериев.
      * @return Predicate для добавления к общему запросу.
      */
-    Predicate createPredicate(TransactionFilterDTO filter, Root<Transaction> root, CriteriaBuilder criteriaBuilder);
+    Predicate createPredicate(TransactionFilterDto filter, Root<Transaction> root, CriteriaBuilder criteriaBuilder);
 }

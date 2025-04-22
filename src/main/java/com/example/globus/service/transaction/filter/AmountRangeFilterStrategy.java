@@ -1,6 +1,6 @@
 package com.example.globus.service.transaction.filter;
 
-import com.example.globus.dto.transaction.TransactionFilterDTO;
+import com.example.globus.dto.transaction.TransactionFilterDto;
 import com.example.globus.entity.transaction.Transaction;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 public class AmountRangeFilterStrategy implements TransactionFilterSpecificationStrategy {
 
     @Override
-    public boolean supports(TransactionFilterDTO filter) {
+    public boolean supports(TransactionFilterDto filter) {
         return filter.amountFrom() != null || filter.amountTo() != null;
     }
 
     @Override
-    public Predicate createPredicate(TransactionFilterDTO filter, Root<Transaction> root, CriteriaBuilder cb) {
+    public Predicate createPredicate(TransactionFilterDto filter, Root<Transaction> root, CriteriaBuilder cb) {
         if (filter.amountFrom() != null && filter.amountTo() != null) {
             // Если заданы обе границы диапазона
             return cb.between(root.get("amount"), filter.amountFrom(), filter.amountTo());

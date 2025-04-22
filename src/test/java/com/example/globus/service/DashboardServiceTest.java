@@ -2,6 +2,7 @@ package com.example.globus.service;
 
 import com.example.globus.dto.dashboard.DashboardTransactionCountDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
+import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import com.example.globus.entity.transaction.TransactionType;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,5 +61,32 @@ class DashboardServiceTest {
 
         assertNotNull(result.debitTransactions(), "Список debitTransactions не должен быть null");
         assertEquals(1, result.debitTransactions().size(), "Должна быть 1 дебетовая транзакция");
+    }
+
+    @Test
+    void calculateIncomeExpenseComparison_ShouldCalculateSumsCorrectly() {
+        // Подготовка тестовых транзакций
+        Transaction income1 = new Transaction();
+        income1.setTransactionType(TransactionType.INCOME);
+        income1.setAmount(new BigDecimal("100.50"));
+
+        Transaction expense = new Transaction();
+        expense.setTransactionType(TransactionType.EXPENSE);
+        expense.setAmount(new BigDecimal("50.25"));
+
+        Transaction income2 = new Transaction();
+        income2.setTransactionType(TransactionType.INCOME);
+        income2.setAmount(new BigDecimal("200.75"));
+
+        List<Transaction> transactions = List.of(income1, expense, income2);
+
+        // Вызов
+        IncomeExpenseComparisonDto result = dashboardService.calculateIncomeExpenseComparison(transactions);
+
+        // Проверки
+        assertEquals(new BigDecimal("301.25"), result.incomeAmount(),
+                "Сумма доходов должна быть 100.50 + 200.75 = 301.25");
+        assertEquals(new BigDecimal("50.25"), result.expenseAmount(),
+                "Сумма расходов должна быть 50.25");
     }
 }

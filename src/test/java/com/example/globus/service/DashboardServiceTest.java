@@ -301,4 +301,40 @@ class DashboardServiceTest {
         assertEquals(1, countByCategory.size());
         assertEquals(1L, countByCategory.get("Food"));
     }
+
+    @Test
+    void generateFinancialReport_WithValidTransactions_ShouldGenerateValidPdf() {
+        // Arrange
+        List<Transaction> transactions = Arrays.asList(
+                debitTransaction1, debitTransaction2,
+                creditTransaction1, creditTransaction2
+        );
+
+        // Act
+        byte[] pdfBytes = dashboardService.generateFinancialReport(transactions);
+
+        // Assert
+        assertNotNull(pdfBytes);
+        assertTrue(pdfBytes.length > 0);
+    }
+
+    @Test
+    void generateFinancialReport_WithNullTransactions_ShouldReturnEmptyArray() {
+        // Act
+        byte[] pdfBytes = dashboardService.generateFinancialReport(null);
+
+        // Assert
+        assertNotNull(pdfBytes);
+        assertEquals(0, pdfBytes.length);
+    }
+
+    @Test
+    void generateFinancialReport_WithEmptyTransactions_ShouldGenerateEmptyReport() {
+        // Act
+        byte[] pdfBytes = dashboardService.generateFinancialReport(Collections.emptyList());
+
+        // Assert
+        assertNotNull(pdfBytes);
+        assertTrue(pdfBytes.length > 0);
+    }
 } 

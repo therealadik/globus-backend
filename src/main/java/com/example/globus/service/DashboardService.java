@@ -3,21 +3,41 @@ package com.example.globus.service;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
+import org.apache.pdfbox.util.Matrix;
 import org.springframework.stereotype.Service;
 
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
 
     private static final int DECIMAL_PLACES = 2;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private static final float MARGIN = 50;
+    private static final float LINE_HEIGHT = 20;
+    private static final float SECTION_SPACING = 30;
+    private static final float TITLE_FONT_SIZE = 16;
+    private static final float HEADER_FONT_SIZE = 12;
+    private static final float CONTENT_FONT_SIZE = 10;
 
     public DashboardDebitResponse getDebitTransactionsDashboard(List<Transaction> transactions) {
         if (transactions == null) {
@@ -148,5 +168,184 @@ public class DashboardService {
 
     private void processDashboards(DashboardDebitResponse debitDashboard, DashboardCreditResponse creditDashboard) {
         // Add processing logic here if needed
+    }
+
+    public byte[] generateFinancialReport(List<Transaction> transactions) {
+        if (transactions == null) {
+            log.warn("Attempted to generate financial report with null transactions");
+            return new byte[0];
+        }
+
+        try {
+            DashboardDebitResponse debitDashboard = getDebitTransactionsDashboard(transactions);
+            DashboardCreditResponse creditDashboard = getCreditTransactionsDashboard(transactions);
+
+            try (PDDocument document = new PDDocument()) {
+                PDPage page = new PDPage();
+                document.addPage(page);
+
+                try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                    // Set up graphics state for transparency
+                    PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+                    graphicsState.setNonStrokingAlphaConstant(0.8f);
+                    contentStream.setGraphicsStateParameters(graphicsState);
+
+                    // Title
+                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, TITLE_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, 750);
+                    contentStream.showText("Financial Report");
+                    contentStream.endText();
+
+                    // Date
+                    contentStream.setFont(PDType1Font.HELVETICA, CONTENT_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.GRAY);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, 720);
+                    contentStream.showText("Generated: " + LocalDateTime.now().format(DATE_FORMATTER));
+                    contentStream.endText();
+
+                    float y = 680;
+
+                    // Credit Transactions Section
+                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, HEADER_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Credit Transactions");
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.setFont(PDType1Font.HELVETICA, CONTENT_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.BLACK);
+
+                    // Draw table header
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Category");
+                    contentStream.newLineAtOffset(200, 0);
+                    contentStream.showText("Amount");
+                    contentStream.newLineAtOffset(100, 0);
+                    contentStream.showText("Count");
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.setNonStrokingColor(Color.GRAY);
+                    contentStream.moveTo(MARGIN, y);
+                    contentStream.lineTo(MARGIN + 400, y);
+                    contentStream.stroke();
+
+                    y -= LINE_HEIGHT;
+
+                    // Credit transactions
+                    for (Map.Entry<String, BigDecimal> entry : creditDashboard.getCreditsByCategory().entrySet()) {
+                        contentStream.setNonStrokingColor(Color.BLACK);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(MARGIN, y);
+                        contentStream.showText(entry.getKey());
+                        contentStream.newLineAtOffset(200, 0);
+                        contentStream.showText(entry.getValue().toString());
+                        contentStream.newLineAtOffset(100, 0);
+                        contentStream.showText(creditDashboard.getTransactionCountByCategory().get(entry.getKey()).toString());
+                        contentStream.endText();
+                        y -= LINE_HEIGHT;
+                    }
+
+                    y -= SECTION_SPACING;
+
+                    // Debit Transactions Section
+                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, HEADER_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Debit Transactions");
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.setFont(PDType1Font.HELVETICA, CONTENT_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.BLACK);
+
+                    // Draw table header
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Category");
+                    contentStream.newLineAtOffset(200, 0);
+                    contentStream.showText("Amount");
+                    contentStream.newLineAtOffset(100, 0);
+                    contentStream.showText("Count");
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.setNonStrokingColor(Color.GRAY);
+                    contentStream.moveTo(MARGIN, y);
+                    contentStream.lineTo(MARGIN + 400, y);
+                    contentStream.stroke();
+
+                    y -= LINE_HEIGHT;
+
+                    // Debit transactions
+                    for (Map.Entry<String, BigDecimal> entry : debitDashboard.getDebitsByCategory().entrySet()) {
+                        contentStream.setNonStrokingColor(Color.BLACK);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(MARGIN, y);
+                        contentStream.showText(entry.getKey());
+                        contentStream.newLineAtOffset(200, 0);
+                        contentStream.showText(entry.getValue().toString());
+                        contentStream.newLineAtOffset(100, 0);
+                        contentStream.showText(debitDashboard.getTransactionCountByCategory().get(entry.getKey()).toString());
+                        contentStream.endText();
+                        y -= LINE_HEIGHT;
+                    }
+
+                    y -= SECTION_SPACING;
+
+                    // Totals Section
+                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, HEADER_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.DARK_GRAY);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Summary");
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.setFont(PDType1Font.HELVETICA, CONTENT_FONT_SIZE);
+                    contentStream.setNonStrokingColor(Color.BLACK);
+
+                    // Draw summary table
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Total Credit:");
+                    contentStream.newLineAtOffset(200, 0);
+                    contentStream.showText(creditDashboard.getTotalCreditAmount().toString());
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Total Debit:");
+                    contentStream.newLineAtOffset(200, 0);
+                    contentStream.showText(debitDashboard.getTotalDebitAmount().toString());
+                    contentStream.endText();
+
+                    y -= LINE_HEIGHT;
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(MARGIN, y);
+                    contentStream.showText("Net Balance:");
+                    contentStream.newLineAtOffset(200, 0);
+                    contentStream.showText(creditDashboard.getTotalCreditAmount()
+                            .subtract(debitDashboard.getTotalDebitAmount())
+                            .toString());
+                    contentStream.endText();
+                }
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                document.save(outputStream);
+                return outputStream.toByteArray();
+            }
+        } catch (IOException e) {
+            log.error("Error generating financial report", e);
+            throw new RuntimeException("Failed to generate financial report", e);
+        }
     }
 }

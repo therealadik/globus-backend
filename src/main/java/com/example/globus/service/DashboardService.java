@@ -1,6 +1,5 @@
 package com.example.globus.service;
 
-import com.example.globus.entity.Category;
 import com.example.globus.entity.transaction.Transaction;
 import com.example.globus.entity.transaction.TransactionStatus;
 import lombok.RequiredArgsConstructor;

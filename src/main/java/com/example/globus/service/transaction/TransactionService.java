@@ -1,6 +1,7 @@
 package com.example.globus.service.transaction;
 
 import com.example.globus.dto.TransactionFilterResponseDto;
+import com.example.globus.dto.dashboard.BankTransactionStatisticsDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
 import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
 import com.example.globus.dto.dashboard.TransactionCountDto;
@@ -97,9 +98,10 @@ public class TransactionService {
         TransactionCountDto transactionCountDto = dashboardService.calculateTransactionCounts(transactions);
         DebitCreditTransactionsDto debitCreditTransactionsDto = dashboardService.calculateDebitCreditTransactions(transactions);
         IncomeExpenseComparisonDto incomeExpenseComparisonDto = dashboardService.calculateIncomeExpenseComparison(transactions);
+        List<BankTransactionStatisticsDto> bankTransactionStatisticsDtos = dashboardService.calculateBankStatistics(transactions);
 
         return new TransactionFilterResponseDto(
-                null,
+                bankTransactionStatisticsDtos,
                 debitCreditTransactionsDto,
                 incomeExpenseComparisonDto,
                 null,

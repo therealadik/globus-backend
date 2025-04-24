@@ -17,7 +17,9 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.List;
 
@@ -115,5 +117,119 @@ class DashboardServiceTest {
         );
         List<BankTransactionStatisticsDto> actual = dashboardService.calculateBankStatistics(transactions);
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void caclulateStatsPerPeriodsTest() {
+
+        /**
+         *  long weeklyCount; (wc)
+         *  long monthlyCount; (mc)
+         *  long quarterlyCount; (qc)
+         *  long yearlyCount0L; (yc)
+         */
+
+        //пятница
+        //Квартал:3
+        //mock
+        LocalDateTime testDate = LocalDateTime.of(2024, 9, 27, 12, 12, 12);
+
+
+        /**
+         *  wc:1
+         *  mc:1
+         *  qc:1
+         *  yc:1
+         */
+        LocalDateTime midnight = testDate.toLocalDate().atStartOfDay();
+
+        /**
+         *  wc:2
+         *  mc:2
+         *  qc:2
+         *  yc:2
+         */
+        LocalDateTime startOfWeek = testDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toLocalDate().atStartOfDay();
+
+        /**
+         *  wc:2
+         *  mc:3
+         *  qc:3
+         *  yc:3
+         */
+        LocalDateTime previousWeekEnd = startOfWeek.minusSeconds(1);
+
+        /**
+         *  wc:2
+         *  mc:4
+         *  qc:4
+         *  yc:4
+         */
+        LocalDateTime startOfMonth = testDate.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+
+        /**
+         *  wc:2
+         *  mc:4
+         *  qc:5
+         *  yc:5
+         */
+        LocalDateTime previousMonthLastDay = startOfMonth.minusSeconds(1);
+
+        //Начала кварталов: 1 4 7 10
+
+        /**
+         *  wc:2
+         *  mc:4
+         *  qc:6
+         *  yc:6
+         */
+        int currentQuarter = (testDate.getMonthValue() - 1) / 3 + 1;
+        LocalDateTime startOfQuarter = LocalDateTime.of(
+                testDate.getYear(),
+                (currentQuarter - 1) * 3 + 1, // Первый месяц квартала (1, 4, 7, 10)
+                1, 0, 0
+        );
+
+        /**
+         *  wc:2
+         *  mc:4
+         *  qc:6
+         *  yc:7
+         */
+        LocalDateTime previousQuarterLastDay = startOfQuarter.minusSeconds(1);
+
+
+        /**
+         *  wc:2
+         *  mc:4
+         *  qc:6
+         *  yc:8
+         */
+        LocalDateTime startOfYear = LocalDateTime.of(2024, 1, 1, 0, 0);
+        LocalDateTime previousYearLastDay = LocalDateTime.of(2023, 12, 31, 23, 59, 59);  // Конец года
+
+
+        List<Transaction> transactions = Arrays.asList(
+                new Transaction(1L, midnight, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Тинькофф"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, startOfWeek, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Тинькофф"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, previousWeekEnd, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, startOfMonth, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, previousMonthLastDay, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, startOfQuarter, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "ВТБ"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, previousQuarterLastDay, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "Сбербанк"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, startOfYear, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "Сбербанк"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User()),
+                new Transaction(1L, previousYearLastDay, PersonType.PHYSICAL, TransactionType.INCOME, new BigDecimal(1000), TransactionStatus.NEW, new Bank(1L, "Сбербанк"), new Bank(1L, "Сбербанк"), "12345678912", "test", "test", new Category(), "79086428563", new User(), new User())
+        );
+            TransactionCountByPeriodDto caclulateStatsPerPeriods = dashboardService.caclulateStatsPerPeriods(transactions, testDate);
+
+            assertEquals(caclulateStatsPerPeriods.weeklyCount(),2);
+            assertEquals(caclulateStatsPerPeriods.monthlyCount(),4);
+            assertEquals(caclulateStatsPerPeriods.quarterlyCount(), 6);
+            assertEquals(caclulateStatsPerPeriods.yearlyCount(), 8);
+
+
+
+
+
     }
 }

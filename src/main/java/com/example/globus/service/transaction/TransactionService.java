@@ -1,10 +1,7 @@
 package com.example.globus.service.transaction;
 
 import com.example.globus.dto.TransactionFilterResponseDto;
-import com.example.globus.dto.dashboard.BankTransactionStatisticsDto;
-import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
-import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
-import com.example.globus.dto.dashboard.TransactionCountDto;
+import com.example.globus.dto.dashboard.*;
 import com.example.globus.dto.transaction.NewTransactionRequestDto;
 import com.example.globus.dto.transaction.TransactionFilterDto;
 import com.example.globus.dto.transaction.TransactionResponseDto;
@@ -23,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -99,13 +97,13 @@ public class TransactionService {
         DebitCreditTransactionsDto debitCreditTransactionsDto = dashboardService.calculateDebitCreditTransactions(transactions);
         IncomeExpenseComparisonDto incomeExpenseComparisonDto = dashboardService.calculateIncomeExpenseComparison(transactions);
         List<BankTransactionStatisticsDto> bankTransactionStatisticsDtos = dashboardService.calculateBankStatistics(transactions);
-
+        TransactionCountByPeriodDto transactionCountByPeriodDto = dashboardService.caclulateStatsPerPeriods(transactions, LocalDateTime.now());
         return new TransactionFilterResponseDto(
                 bankTransactionStatisticsDtos,
                 debitCreditTransactionsDto,
                 incomeExpenseComparisonDto,
                 null,
-                null,
+                transactionCountByPeriodDto,
                 transactionCountDto
         );
     }

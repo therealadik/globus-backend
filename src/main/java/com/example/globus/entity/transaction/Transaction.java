@@ -3,22 +3,9 @@ package com.example.globus.entity.transaction;
 import com.example.globus.entity.Bank;
 import com.example.globus.entity.Category;
 import com.example.globus.entity.user.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -55,32 +42,33 @@ public class Transaction {
     private TransactionStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "bank_sender_id")
+    @JoinColumn(name = "bank_sender_id", nullable = false)
     private Bank bankSender;
 
     @ManyToOne
-    @JoinColumn(name = "bank_receiver_id")
+    @JoinColumn(name = "bank_receiver_id", nullable = false)
     private Bank bankReceiver;
 
-    @Column(name = "inn_receiver", nullable = false, length = 12)
+    @Pattern(regexp = "\\d{11}", message = "ИНН должен содержать ровно 11 цифр")
+    @Column(name = "inn_receiver", nullable = false)
     private String innReceiver;
 
     @Column(name = "account_receiver", nullable = false)
     private String accountReceiver;
 
+    @Column(name = "account_sender", nullable = false)
+    private String accountSender;
+
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Pattern(
-            regexp = "^(\\\\+7|8)\\\\d{10}$\"",
-            message = "Телефон должен начинаться с +7 или 8 и содержать 10 цифр после"
-
-    )
+    @Column(name = "phone_receiver", nullable = false)
+    @Pattern(regexp = "^(\\+7|8)\\d{10}$", message = "Телефон должен начинаться с +7 или 8 и содержать 11 цифр")
     private String phoneReceiver;
 
     @ManyToOne
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
     @ManyToOne

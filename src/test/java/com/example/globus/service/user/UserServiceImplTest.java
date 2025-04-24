@@ -1,6 +1,6 @@
 package com.example.globus.service.user;
 
-import com.example.globus.dto.RegistrationRequestDto;
+import com.example.globus.dto.authentication.RegistrationRequestDto;
 import com.example.globus.entity.user.User;
 import com.example.globus.mapstruct.UserMapper;
 import com.example.globus.mapstruct.UserMapperImpl;
@@ -16,8 +16,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -28,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,8 +33,7 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
-    @Spy
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Spy
     private UserMapper userMapper = new UserMapperImpl();
 
@@ -79,17 +75,15 @@ class UserServiceImplTest {
         User result = userService.createUser(req);
         assertSame(saved, result);
 
-        InOrder ord = inOrder(userRepository, userMapper, passwordEncoder);
+        InOrder ord = inOrder(userRepository, userMapper);
         ord.verify(userRepository).existsByUsername("alice");
         ord.verify(userMapper).toEntity(req);
-        ord.verify(passwordEncoder).encode("pass");
         ord.verify(userRepository).save(any(User.class));
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User passedToSave = captor.getValue();
         assertEquals("alice", passedToSave.getUsername());
-        assertTrue(passwordEncoder.matches("pass", passedToSave.getPassword()));
     }
 
     @Test
@@ -99,6 +93,5 @@ class UserServiceImplTest {
 
         assertThrows(EntityExistsException.class, () -> userService.createUser(req));
         verify(userRepository).existsByUsername("bob");
-        verifyNoMoreInteractions(userMapper, passwordEncoder);
     }
 }

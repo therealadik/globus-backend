@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changesets/V001_init.sql
   - include:
       file: db/changelog/changesets/V002_add_security_user.sql
+  - include:
+      file: db/changelog/changesets/V003_add_test_values.sql

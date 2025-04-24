@@ -12,13 +12,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @Table(name = "categories")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Category {
 
     @Id
@@ -27,5 +27,4 @@ public class Category {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
-
 }

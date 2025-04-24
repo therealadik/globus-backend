@@ -1,6 +1,6 @@
 package com.example.globus.mapstruct;
 
-import com.example.globus.dto.RegistrationRequestDto;
+import com.example.globus.dto.authentication.RegistrationRequestDto;
 import com.example.globus.entity.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

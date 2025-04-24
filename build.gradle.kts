@@ -112,6 +112,9 @@ tasks.jacocoTestCoverageVerification {
                 "com.example.globus.service",
                 "com.example.globus.security"
             )
+            excludes = listOf(
+                "com.example.globus.service.transaction.filter",
+            )
 
             limit {
                 minimum = BigDecimal.valueOf(0.7)

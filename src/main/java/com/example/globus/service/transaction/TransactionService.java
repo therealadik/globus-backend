@@ -4,6 +4,7 @@ import com.example.globus.dto.TransactionFilterResponseDto;
 import com.example.globus.dto.dashboard.BankTransactionStatisticsDto;
 import com.example.globus.dto.dashboard.DebitCreditTransactionsDto;
 import com.example.globus.dto.dashboard.IncomeExpenseComparisonDto;
+import com.example.globus.dto.dashboard.TransactionCategoryStatsDto;
 import com.example.globus.dto.dashboard.TransactionCountDto;
 import com.example.globus.dto.transaction.NewTransactionRequestDto;
 import com.example.globus.dto.transaction.TransactionFilterDto;
@@ -99,12 +100,13 @@ public class TransactionService {
         DebitCreditTransactionsDto debitCreditTransactionsDto = dashboardService.calculateDebitCreditTransactions(transactions);
         IncomeExpenseComparisonDto incomeExpenseComparisonDto = dashboardService.calculateIncomeExpenseComparison(transactions);
         List<BankTransactionStatisticsDto> bankTransactionStatisticsDtos = dashboardService.calculateBankStatistics(transactions);
-
+        TransactionCategoryStatsDto transactionCategoryStatsDto = dashboardService.calculateTransactionCategoryStats(transactions);
+        
         return new TransactionFilterResponseDto(
                 bankTransactionStatisticsDtos,
                 debitCreditTransactionsDto,
                 incomeExpenseComparisonDto,
-                null,
+                transactionCategoryStatsDto,
                 null,
                 transactionCountDto
         );

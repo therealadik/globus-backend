@@ -87,14 +87,14 @@ public class DashboardService {
 
     public TransactionCategoryStatsDto calculateTransactionCategoryStats(List<Transaction> transactions) {
         Map<String, BigDecimal> incomeByCategory = transactions.stream()
-                .filter(t -> t.getAmount().compareTo(BigDecimal.ZERO) > 0)
+                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
                         Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
                 ));
 
         Map<String, BigDecimal> expenseByCategory = transactions.stream()
-                .filter(t -> t.getAmount().compareTo(BigDecimal.ZERO) < 0)
+                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
                 .collect(Collectors.groupingBy(
                         t -> t.getCategory().getName(),
                         Collectors.reducing(BigDecimal.ZERO, t -> t.getAmount().abs(), BigDecimal::add)

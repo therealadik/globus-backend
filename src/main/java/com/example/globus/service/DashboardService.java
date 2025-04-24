@@ -84,4 +84,22 @@ public class DashboardService {
                 .sorted(Comparator.comparingLong(BankTransactionStatisticsDto::transactionCount).reversed())
                 .collect(Collectors.toList());
     }
+
+    public TransactionCategoryStatsDto calculateTransactionCategoryStats(List<Transaction> transactions) {
+        Map<String, BigDecimal> incomeByCategory = transactions.stream()
+                .filter(t -> t.getTransactionType().equals(TransactionType.INCOME))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory().getName(),
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                ));
+
+        Map<String, BigDecimal> expenseByCategory = transactions.stream()
+                .filter(t -> t.getTransactionType().equals(TransactionType.EXPENSE))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory().getName(),
+                        Collectors.reducing(BigDecimal.ZERO, t -> t.getAmount().abs(), BigDecimal::add)
+                ));
+
+        return new TransactionCategoryStatsDto(incomeByCategory, expenseByCategory);
+    }
 }

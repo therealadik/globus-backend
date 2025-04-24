@@ -108,6 +108,10 @@ class DashboardServiceTest {
                         .build(),
                 Transaction.builder()
                         .bankSender(bank1)
+                        .bankReceiver(bank2)
+                        .build(),
+                Transaction.builder()
+                        .bankSender(bank1)
                         .bankReceiver(bank3)
                         .build()
         );
@@ -115,9 +119,16 @@ class DashboardServiceTest {
         List<BankTransactionStatisticsDto> result = dashboardService.calculateBankStatistics(transactions);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).senderBankName()).isEqualTo("Bank1");
-        assertThat(result.get(0).receiverBankName()).isEqualTo("Bank2");
-        assertThat(result.get(0).transactionCount()).isEqualTo(1);
+        assertThat(result).anySatisfy(dto -> {
+            assertThat(dto.senderBankName()).isEqualTo("Bank1");
+            assertThat(dto.receiverBankName()).isEqualTo("Bank2");
+            assertThat(dto.transactionCount()).isEqualTo(2);
+        });
+        assertThat(result).anySatisfy(dto -> {
+            assertThat(dto.senderBankName()).isEqualTo("Bank1");
+            assertThat(dto.receiverBankName()).isEqualTo("Bank3");
+            assertThat(dto.transactionCount()).isEqualTo(1);
+        });
     }
 
     @Test

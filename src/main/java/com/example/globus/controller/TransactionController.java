@@ -5,6 +5,7 @@ import com.example.globus.dto.transaction.NewTransactionRequestDto;
 import com.example.globus.dto.transaction.TransactionFilterDto;
 import com.example.globus.dto.transaction.TransactionResponseDto;
 import com.example.globus.dto.transaction.UpdateTransactionRequestDto;
+import com.example.globus.service.ReportService;
 import com.example.globus.service.transaction.TransactionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final ReportService reportService;
 
     @PostMapping
     public TransactionResponseDto create(@Valid @RequestBody NewTransactionRequestDto request) {
@@ -39,5 +41,10 @@ public class TransactionController {
     @PostMapping("/filter")
     public TransactionFilterResponseDto findTransactionsByFilter(@Valid @RequestBody TransactionFilterDto filter) {
         return transactionService.findTransactionsByFilter(filter);
+    }
+
+    @GetMapping("/report/pdf")
+    public byte[] getPdfReport(){
+        return reportService.generatePdfReport();
     }
 }

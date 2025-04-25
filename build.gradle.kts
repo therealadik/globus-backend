@@ -36,6 +36,15 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
     /**
+     * PDF Generation
+     */
+    implementation("org.apache.pdfbox:pdfbox:3.0.3")
+    implementation("org.apache.pdfbox:fontbox:3.0.3")
+    implementation("org.apache.pdfbox:xmpbox:3.0.3")
+    implementation("org.apache.pdfbox:preflight:3.0.3")
+    implementation("org.apache.pdfbox:pdfbox-tools:3.0.3")
+
+    /**
      * Database
      */
     implementation("org.liquibase:liquibase-core")

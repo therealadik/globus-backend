@@ -113,6 +113,11 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
     public Transaction findById(Long id) {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Transaction " + id + " not found"));

@@ -99,6 +99,7 @@ public class TransactionService {
         List<BankTransactionStatisticsDto> bankTransactionStatisticsDtos = dashboardService.calculateBankStatistics(transactions);
         TransactionCategoryStatsDto transactionCategoryStatsDto = dashboardService.calculateTransactionCategoryStats(transactions);
         TransactionCountByPeriodDto transactionCountByPeriodDto = dashboardService.caclulateStatsPerPeriods(transactions, LocalDateTime.now());
+
         return new TransactionFilterResponseDto(
                 bankTransactionStatisticsDtos,
                 debitCreditTransactionsDto,

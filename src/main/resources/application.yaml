@@ -13,16 +13,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
 
 server:
-  port: 8080
+  port: 8083
 
 logging:
   level:
-    root: info
+    root: DEBUG
+    org.springframework: DEBUG
+    org.hibernate: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.postgresql: DEBUG
 
 security:
   jwt:

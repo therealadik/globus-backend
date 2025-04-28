@@ -8,4 +8,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changesets/V004_add_test_transactions.sql
   - include:
+      file: db/changelog/changesets/V005_add_serverlog_table.sql
+  - include:
       file: db/changelog/changesets/V006_create_log_entries_table.sql
+  - include:
+      file: db/changelog/changesets/V007_add_test_serverlogs.sql

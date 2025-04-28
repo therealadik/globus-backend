@@ -1,16 +1,15 @@
 # Этап сборки
-FROM gradle:8.6.0-jdk17 AS build
+FROM gradle:8.11.1-jdk17 AS builder
 WORKDIR /app
+
 COPY . .
-RUN gradle build --no-daemon
+
+RUN gradle bootJar --no-daemon --warning-mode=none
 
 # Этап запуска
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# Открываем порт
-EXPOSE 8080
+COPY --from=builder /app/build/libs/service.jar ./service.jar
 
 # Запуск приложения
-ENTRYPOINT ["java", "-jar", "app.jar"] 
+ENTRYPOINT ["java", "-jar", "service.jar"]

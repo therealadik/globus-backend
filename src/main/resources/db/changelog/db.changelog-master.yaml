@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changesets/V003_add_test_values.sql
   - include:
       file: db/changelog/changesets/V004_add_test_transactions.sql
+  - include:
+      file: db/changelog/changesets/V006_create_log_entries_table.sql
